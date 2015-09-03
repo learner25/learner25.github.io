@@ -26,11 +26,16 @@ body {
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 <script type="text/javascript" src="../build/three.min.js"></script>
 =======
 <script type="text/javascript" src="three.min.js"></script>
 >>>>>>> origin/master
 <script src="js/libs/stats.min.js"></script>
+=======
+<script type="text/javascript" src="Drag Cubes_files/three.min.js"></script>
+ 
+>>>>>>> origin/master
  <script src="OrbitControls.js"></script>
 
 
@@ -473,7 +478,7 @@ var initSVGObject = function() {
 		requestAnimationFrame( animate );
 
 		render();
-		stats.update();
+	//	stats.update();
 	};
 
 	function render() {
@@ -515,10 +520,7 @@ var initSVGObject = function() {
 
 	container.appendChild( renderer.domElement );
 
-	stats = new Stats();
-	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.top = '0px';
-	container.appendChild( stats.domElement );
+ 
  
 	window.addEventListener( 'resize', onWindowResize, false );
 
