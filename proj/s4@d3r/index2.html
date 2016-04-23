@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<script src="build/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			
+			var camera, scene, renderer;
+			var geometry, material, mesh,controls,clock = new THREE.Clock();
+
+			function setup() {
+
+				var W = window.innerWidth, H = window.innerHeight;
+				renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setSize( W, H );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 50, W/H, 1, 10000 );
+				camera.position.z = 500;
+				camera.position.y = 50;
+
+				scene = new THREE.Scene();
+				
+				controls = new THREE.OrbitControls(camera);
+				
+				
+				
+				
+				
+			/*	map = THREE.ImageUtils.loadTexture('white.jpg');
+			geometry = new THREE.CubeGeometry(98.35, 33.45, 217.33);
+			material = new THREE.MeshPhongMaterial({shading: THREE.SmoothShading, color: 0xdcdcdc, ambient: 0xcac6c6, emissive: 0x000000, specular: 0x111111, shininess: 30, map: map, side: THREE.DoubleSide});
+			mesh = new THREE.Mesh(geometry, material);
+			map.wrapS = map.wrapT = THREE.RepeatWrapping;
+			map.repeat.set( 9.974089754445385, 9.974089754445385 );
+			mesh.position.y = 22.06;
+			mesh.castShadow = true;
+			scene.add(mesh);*/
+			
+			var r = "cube/SwedishRoyalCastle/";
+				var urls = [ r + "px.jpg", r + "nx.jpg",
+							 r + "py.jpg", r + "ny.jpg",
+							 r + "pz.jpg", r + "nz.jpg" ];
+
+				var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+
+				var camaroMaterials = {
+
+					body: {
+
+						Orange: new THREE.MeshLambertMaterial( {
+							color: 0xff6600,
+							envMap: textureCube,
+							combine: THREE.MixOperation,
+							reflectivity: 0.3
+						} ),
+
+						Blue: new THREE.MeshLambertMaterial( {
+							color: 0x226699,
+							envMap: textureCube,
+							combine: THREE.MixOperation,
+							reflectivity: 0.3
+						} ),
+
+						Red: new THREE.MeshLambertMaterial( {
+							color: 0x660000,
+							envMap: textureCube,
+							combine: THREE.MixOperation,
+							reflectivity: 0.5
+						} ),
+
+						Black: new THREE.MeshLambertMaterial( {
+							color: 0x000000,
+							envMap: textureCube,
+							combine: THREE.MixOperation,
+							reflectivity: 0.5
+						} ),
+
+						White: new THREE.MeshLambertMaterial( {
+							color: 0xffffff,
+							envMap: textureCube,
+							combine: THREE.MixOperation,
+							reflectivity: .05,
+							
+						} ),
+
+						Carmine: new THREE.MeshPhongMaterial( {
+							color: 0x770000,
+							specular: 0xffaaaa,
+							envMap: textureCube,
+							combine: THREE.MultiplyOperation,
+							emissive:0x770000
+						} ),
+
+						Gold: new THREE.MeshLambertMaterial( {
+							color: 0xaa9944,
+							specular: 0xbbaa99,
+							shininess: 20,
+							envMap: textureCube,
+							combine: THREE.MultiplyOperation,
+							emissive:0xaa9944
+						} ),
+
+						Bronze: new THREE.MeshPhongMaterial( {
+							color: 0x150505,
+							specular: 0xee6600,
+							shininess: 10,
+							envMap: textureCube,
+							combine: THREE.MixOperation,
+							reflectivity: 0.5
+						} ),
+
+						Chrome: new THREE.MeshPhongMaterial( {
+							color: 0xffffff,
+							specular:0xffffff,
+							envMap: textureCube,
+							combine: THREE.MultiplyOperation
+						} )
+
+					},
+
+					chrome: new THREE.MeshLambertMaterial( {
+						color: 0xffffff,
+						envMap: textureCube
+					} ),
+
+					darkchrome: new THREE.MeshLambertMaterial( {
+						color: 0x444444,
+						envMap: textureCube
+					} ),
+
+					glass: new THREE.MeshBasicMaterial( {
+						color: 0x223344,
+						envMap: textureCube,
+						opacity: 0.25,
+						combine: THREE.MixOperation,
+						reflectivity: 0.25,
+						transparent: true
+					} ),
+
+					tire: new THREE.MeshLambertMaterial( {
+						color: 0x050505
+					} ),
+
+					interior: new THREE.MeshPhongMaterial( {
+						color: 0x050505,
+						shininess: 0
+					} ),
+
+					black: new THREE.MeshLambertMaterial( {
+						color: 0x000000
+					} )
+
+				};
+
+				var loader = new THREE.JSONLoader();
+				loader.load( "ring.js", function( geometry ) { createScene( geometry, camaroMaterials ) } );
+			
+			
+			pgeometry = new THREE.PlaneGeometry( 9,9, 20, 20 );
+			map = THREE.ImageUtils.loadTexture('white.jpg');
+			pmaterial = new THREE.MeshPhongMaterial({ map: map });
+			map.wrapS = map.wrapT = THREE.RepeatWrapping;
+			map.repeat.set( 80, 80 );
+			plane = new THREE.Mesh( pgeometry, pmaterial );
+			plane.rotation.x = - Math.PI / 2;
+			plane.receiveShadow	= true;
+			plane.scale.set( 30, 30, 30 );
+			scene.add( plane );
+			renderer.shadowMapType = THREE.PCFShadowMapSoft;
+			renderer.shadowMapEnabled = true;
+			
+			ambientLight = new THREE.AmbientLight( 0x000000 );
+			scene.add( ambientLight );
+			
+			hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.44);
+			scene.add( hemisphereLight );
+			
+			directionalLight = new THREE.DirectionalLight(0xffffff, 0.19);
+			directionalLight.position.set( 0, 1, 0 );
+			directionalLight.castShadow = true;
+
+                        directionalLight.shadowMapWidth = 2048;
+                        directionalLight.shadowMapHeight = 2048;
+			scene.add( directionalLight );
+			
+			spotLight1 = new THREE.SpotLight( 0xffffff, .55 );
+			spotLight1.position.set( -691.19, 1000, 100 );
+			spotLight1.castShadow = true;
+			spotLight1.shadowDarkness = 0.32;
+                        spotLight1.shadowMapWidth = 2048;
+spotLight1.shadowMapHeight = 2048;
+			scene.add( spotLight1 );
+			
+			spotLight2 = new THREE.SpotLight( 0xffffff, 0.1 );
+			spotLight2.position.set( 100, 257.28, 100 );
+			spotLight2.castShadow = true;
+			spotLight2.shadowDarkness = 0.52;
+spotLight2.shadowMapWidth = 2048;
+spotLight2.shadowMapHeight = 2048;
+			scene.add( spotLight2 );
+                
+				
+				function createButtons( materials, faceMaterial ) {
+
+				var buttons = document.getElementById( "buttons" );
+
+				for ( var key in materials ) {
+
+					var button = document.createElement( 'button' );
+					button.textContent = key;
+					button.addEventListener( 'click', function ( event ) {
+
+						faceMaterial.materials[ 0 ] = materials[ this.textContent ];
+
+					}, false );
+					buttons.appendChild( button );
+
+				}
+
+			}
+				
+				
+				
+				function createScene( geometry, materials ) {
+
+				var s = 25, m = new THREE.MeshFaceMaterial();
+
+				m.materials[ 0 ] = materials.body[ "Orange" ]; // car body
+				m.materials[ 1 ] = materials.chrome; // wheels chrome
+				m.materials[ 2 ] = materials.chrome; // grille chrome
+				m.materials[ 3 ] = materials.darkchrome; // door lines
+				m.materials[ 4 ] = materials.glass; // windshield
+				m.materials[ 5 ] = materials.interior; // interior
+				m.materials[ 6 ] = materials.tire; // tire
+				m.materials[ 7 ] = materials.black; // tireling
+				m.materials[ 8 ] = materials.black; // behind grille
+
+				var mesh = new THREE.Mesh( geometry, m );
+				mesh.rotation.y = 1;
+				mesh.position.y = 20;
+				mesh.scale.set( s, s, s );
+				scene.add( mesh );
+                mesh.castShadow = true;
+                geometry.computeFaceNormals();
+                geometry.normalsNeedUpdate = true;
+				createButtons( materials.body, m );
+
+			}
+
+
+			}
+
+			function draw() {
+
+				requestAnimationFrame( draw );
+				controls.update(clock.getDelta());
+				
+				
+				renderer.render( scene, camera );
+
+			}
+
+			setup();
+			draw();
+
+		</script>
+		<div id="buttons" style="position:absolute;top:0;width:50px"></div>
+	</body>
+</html>

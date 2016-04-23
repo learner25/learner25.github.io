@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<script src="build/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			material_state1=true;
+			var camera, scene, renderer;
+			var geometry, material,material2, mesh,controls;
+
+			function setup() {
+
+				var W = window.innerWidth, H = window.innerHeight;
+				renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setSize( W, H );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 50, W/H, 1, 10000 );
+				camera.position.set(17.70217851850422,7.289212861843954,7.5752684645828054);
+				camera.rotation.set(-0.7406624080274369,0.9582968360019012,0.6422818617145929);
+					
+				scene = new THREE.Scene();
+				
+				scene.fog = new THREE.Fog( 0x87CEEB,1, 55 );
+				
+				//h-q textures
+				var r = "cube/pisa/";
+				var urls = [ r + "px.png", r + "nx.png",
+							 r + "py.png", r + "ny.png",
+							 r + "pz.png", r + "nz.png" ];
+
+				var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+				
+				
+				
+				var loader = new THREE.JSONLoader().load('hiro2.js',function(geometry){
+                    
+                    
+                     var img = THREE.ImageUtils.loadTexture( "moon.jpg" );
+				img.wrapS = img.wrapT = THREE.RepeatWrapping=0.001;
+				img.anisotropy = 16;
+  				material = new THREE.MeshPhongMaterial({
+                                                       shading: THREE.SmoothShading, 
+                                                        color: 0xaa9944, 
+                                                        side:THREE.DoubleSide,specular:3,
+                                                        envMap:textureCube,
+                                                        reflectivity:.6536,
+                                                        
+                                                        bumpMap:img,
+                                                        
+                                                        bumpScale:.001,
+                                                        metal:true,
+                                                        shineness:40,
+                                                        specular: 0xffffff,
+                                                        emissive:0xaa9944,
+                                                        name:'gold'
+                                                       
+                    
+                                                       }
+                                                      );
+                    material2 = new THREE.MeshPhongMaterial({
+                                                      
+                                                        color: 0x6a6a6a, 
+                                                        side:THREE.DoubleSide,
+                                                        envMap:textureCube,
+                                                        reflectivity:.6536,
+                                                        
+                                                        bumpMap:img,
+                                                        
+                                                        bumpScale:.000353491,
+                                                        metal:true,
+                                                        shineness:180,
+                                                        specular: 0xffffff,
+                                                        emissive:0x6e6e6e,
+                                                        name:'titanium'
+                                                       }
+                                                      );
+				geometry.computeVertexNormals();
+				geometry.computeFaceNormals();
+				geometry.VerticesNeedUpdate = true;
+				geometry.FacesNeedUpdate = true;
+                    
+                  
+				mesh = new THREE.Mesh(geometry, material);
+                   
+                
+				mesh.scale.set(52,52,52);
+				mesh.position.y = 2.41;
+                for(var p=0;p<mesh.children.length;p++)
+                {
+                    p.castShadow = true;
+				     p.recieveShadow = true;
+                }
+                    mesh.castShadow = true;
+				scene.add(mesh)
+				
+				});
+				//geometry = new THREE.TorusGeometry(44.14, 13.94, 40, 40, 15.71);
+				material = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xffffff, side: THREE.DoubleSide,specular:3,reflectivity:.3,envMap:textureCube});
+				mesh = new THREE.Mesh(geometry, material);
+				mesh.position.y = 55.41;
+				mesh.castShadow = true;
+				scene.add(mesh);
+				
+				
+				pgeometry = new THREE.PlaneGeometry( 1000, 1000, 20, 20 );
+				pmaterial = new THREE.MeshPhongMaterial({ ambient: 0x999999, color: 0x999999, specular: 0x101010});
+				plane = new THREE.Mesh( pgeometry, pmaterial );
+				plane.rotation.x = - Math.PI / 2;
+				plane.receiveShadow	= true;
+				plane.scale.set( 30, 30, 30 );
+				scene.add( plane );
+
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapType = THREE.PCFSoftShadowMap;
+				hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x665d5d,1.31);
+				scene.add( hemisphereLight );
+
+				spotLight2 = new THREE.SpotLight( 0xffffff, 0 );
+				spotLight2.position.set( 100, 1000, 100 );
+				spotLight2.castShadow = true;
+				spotLight2.shadowDarkness = 0.525;
+				scene.add( spotLight2 );
+				controls= new THREE.OrbitControls(camera);
+                renderer.setClearColor( scene.fog.color, 1 );
+			}
+  function materialer(index)
+            {
+                if(index===2)
+                mesh.material=material2;
+                else
+                     mesh.material=material;
+            }
+  
+			function draw() {
+
+				requestAnimationFrame( draw );
+				controls.update();
+                 
+                
+				// experiment with code from the snippets menu here
+				//plane.rotation.x+=.09;
+             document.addEventListener('click',click,false);
+   function click(e)
+       {
+	     if(e)
+		
+		   controls.autoRotate = !controls.autoRotate;
+           
+		   
+	   }
+				renderer.render( scene, camera );
+
+			}
+
+			setup();
+			draw();
+
+		</script>
+		<div id="materialSelector" style="position:absolute;top:10px">
+          <div onclick="var k=1;materialer(k);">Gold</div>
+            <div onclick="var k=2;materialer(k);">Titanium</div>
+        </div>
+	</body>
+</html>

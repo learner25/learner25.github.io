@@ -1,0 +1,17 @@
+An error occurred: can't find resolution index for 0.031250. Available resolutions are: 
+[0.703125, 0.3515625, 0.17578125, 0.087890625, 0.0439453125, 0.02197265625, 0.010986328125, 0.0054931640625, 0.00274658203125, 0.001373291015625, 0.0006866455078125, 0.00034332275390625, 0.000171661376953125, 8.58306884765625e-05, 4.291534423828125e-05, 2.1457672119140625e-05, 1.0728836059570312e-05, 5.3644180297851562e-06, 2.6822090148925781e-06, 1.3411045074462891e-06]
+  File "/var/www/tilecache/tilecache-2.10/TileCache/Service.py", line 256, in modPythonHandler
+    host )
+  File "/var/www/tilecache/tilecache-2.10/TileCache/Service.py", line 181, in dispatchRequest
+    tile = WMS(self).parse(params, path_info, host)
+  File "/var/www/tilecache/readonly_200711/TileCache/Services/WMS.py", line 19, in parse
+    return self.getMap(param)
+  File "/var/www/tilecache/readonly_200711/TileCache/Services/WMS.py", line 27, in getMap
+    tile  = self.getLayer(name).getTile(bbox)
+  File "/var/www/tilecache/readonly_200711/TileCache/Layer.py", line 311, in getTile
+    coord = self.getCell(bbox)
+  File "/var/www/tilecache/readonly_200711/TileCache/Layer.py", line 265, in getCell
+    z = self.getLevel(res, self.size)
+  File "/var/www/tilecache/readonly_200711/TileCache/Layer.py", line 244, in getLevel
+    raise TileCacheException("can't find resolution index for %f. Available resolutions are: \n%s" % (res, self.resolutions))
+

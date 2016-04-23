@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<script src="build/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			
+			var camera, scene, renderer;
+			var geometry, material, mesh,controls;
+
+			function setup() {
+
+				var W = window.innerWidth, H = window.innerHeight;
+				renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setSize( W, H );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 50, W/H, 1, 10000 );
+				camera.position.set(17.70217851850422,7.289212861843954,7.5752684645828054);
+				camera.rotation.set(-0.7406624080274369,0.9582968360019012,0.6422818617145929);
+					
+				scene = new THREE.Scene();
+				
+				
+				
+				//h-q textures
+				var r = "cube/SwedishRoyalCastle/";
+				var urls = [ r + "px.jpg", r + "nx.jpg",
+							 r + "py.jpg", r + "ny.jpg",
+							 r + "pz.jpg", r + "nz.jpg" ];
+
+				var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+				
+				
+				
+				var loader = new THREE.JSONLoader().load('hiro2.js',function(geometry){
+				material = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xffffff, side: THREE.DoubleSide,specular:3,envMap:textureCube,reflectivity:.09});
+				geometry.computeVertexNormals();
+				geometry.computeFaceNormals();
+				geometry.VerticesNeedUpdate = true;
+				geometry.FacesNeedUpdate = true;
+				mesh = new THREE.Mesh(geometry, material);
+				mesh.scale.set(52,52,52);
+				mesh.position.y = 2.41;
+				mesh.castShadow = true;
+				scene.add(mesh)
+				
+				});
+				//geometry = new THREE.TorusGeometry(44.14, 13.94, 40, 40, 15.71);
+				material = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xffffff, side: THREE.DoubleSide,specular:3,reflectivity:.3,envMap:textureCube});
+				mesh = new THREE.Mesh(geometry, material);
+				mesh.position.y = 55.41;
+				mesh.castShadow = true;
+				scene.add(mesh);
+				
+				
+				pgeometry = new THREE.PlaneGeometry( 1000, 1000, 20, 20 );
+				pmaterial = new THREE.MeshPhongMaterial({color:0xffffff});
+				plane = new THREE.Mesh( pgeometry, pmaterial );
+				plane.rotation.x = - Math.PI / 2;
+				plane.receiveShadow	= true;
+				plane.scale.set( 30, 30, 30 );
+				scene.add( plane );
+
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapType = THREE.PCFSoftShadowMap;
+				hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x665d5d,1.01);
+				scene.add( hemisphereLight );
+
+				spotLight2 = new THREE.SpotLight( 0xffffff, 0 );
+				spotLight2.position.set( 100, 1000, 100 );
+				spotLight2.castShadow = true;
+				spotLight2.shadowDarkness = 0.25;
+				scene.add( spotLight2 );
+				controls= new THREE.OrbitControls(camera);
+			}
+
+			function draw() {
+
+				requestAnimationFrame( draw );
+				controls.update();
+				// experiment with code from the snippets menu here
+				//plane.rotation.x+=.09;
+             document.addEventListener('click',click,false);
+   function click(e)
+       {
+	     if(e)
+		
+		   controls.autoRotate = !controls.autoRotate;
+		   
+	   }
+				renderer.render( scene, camera );
+
+			}
+  
+  
+			setup();
+			draw();
+
+		</script>
+		
+	</body>
+</html>

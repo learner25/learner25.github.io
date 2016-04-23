@@ -1,0 +1,145 @@
+<html>
+<head>
+  <title>Wind simulation 2D</title>
+    <script src="http://openlayers.org/api/OpenLayers.js"></script>
+    </head>
+    <body>
+      <div style="width:100%; height:100%" id="wind"></div>
+      <script defer="defer" type="text/javascript">
+	  
+	
+        var map = new OpenLayers.Map('wind');
+		var arr_data = [],datastring="";
+		var xmlhttp;
+		 var wmscURL = [
+        "http://wmsc1.terrapages.net/getmap?",
+        "http://wmsc2.terrapages.net/getmap?",
+        "http://wmsc3.terrapages.net/getmap?",
+        "http://wmsc4.terrapages.net/getmap?"
+    ];
+		
+       var wms = new OpenLayers.Layer.WMS(
+				'Global Imagery',
+                "http://maps.opengeo.org/geowebcache/service/wms",
+                {layers: 'openstreetmap',format: "image/png"}
+                );
+		
+		map.addLayer(wms);
+        map.setCenter(new OpenLayers.LonLat(20,47),7);
+		
+		var vectorLayer = new OpenLayers.Layer.Vector("Over",{
+		projection: new OpenLayers.Projection("EPSG:900913"),
+		
+         
+		});
+		
+		//until loop
+		window.setInterval(function(){
+		
+		if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+	vectorLayer.destroyFeatures();
+	//data processing 
+      datastring = xmlhttp.responseText;
+	 // datastring.split('\n');
+	   for(i=0;i<datastring.split('\n').length-80;i++)
+	     {
+		  // console.log( datastring.split('\n')[i].split(' ')[1]);
+		   
+		var features_vector = new OpenLayers.Feature.Vector(
+		
+	   
+	   
+	   new OpenLayers.Geometry.Point(datastring.split('\n')[i].split(' ')[1],datastring.split('\n')[i].split(' ')[2]).transform(new OpenLayers.Projection("EPSG:4326")),
+		{some:'data'},
+		{
+		externalGraphic: 'arrow.png', 
+		graphicHeight: 9*(map.getCurrentSize().w/map.getCurrentSize().h), 
+		graphicWidth: 11*(map.getCurrentSize().w/map.getCurrentSize().h),
+		rotation: parseInt(datastring.split('\n')[i].split(' ')[3])+180,
+		label:datastring.split('\n')[i].split(' ')[3],
+		labelAlign:"lt",
+		labelXOffset:3,
+		labelYOffset:8,
+		fontColor:"red",
+		fontFamily:"arial",
+		fontSize:10
+		}
+		
+		
+		);
+		
+		
+		
+		
+		
+		 vectorLayer.addFeatures(features_vector);
+		
+		 }
+		
+		
+		map.addLayer(vectorLayer);
+		 vectorLayer.refresh({force:true});
+		//console.log(map.vectorLayer.redraw());
+	    
+    }
+  }
+ 
+xmlhttp.open("GET","wind.txt",true);
+xmlhttp.send();
+		
+		
+		
+		
+		
+		/*var markers = new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(markers);
+
+var size = new OpenLayers.Size(21,25);
+var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', size, offset);
+markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(19.0399100,47.4980100),icon));
+
+
+		var markers = new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(markers);
+
+var size = new OpenLayers.Size(21,25);
+var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', size, offset);
+markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(19.0399100,47.4980100),icon),{rotation:"60"});
+
+
+		var markers = new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(markers);
+
+var size = new OpenLayers.Size(21,25);
+var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+var icon = new OpenLayers.Icon('http://www.openlayers.org/dev/img/marker.png', size, offset);
+markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(20,47),icon));
+
+popup = new OpenLayers.Popup("chicken",
+                   new OpenLayers.LonLat(19.0399100,47.4980100),
+                   new OpenLayers.Size(100,20),
+				   
+                   "BudaPest",
+                   true);
+
+map.addPopup(popup);*/
+},500);
+
+
+      </script>
+
+</body>
+</html>

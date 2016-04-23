@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<script src="three.min.js"></script>
+		<script src="Detector.js"></script>
+		<script src="OrbitControls.js"></script>
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			
+			var camera, scene, renderer,world,body;
+			var geometry, material, mesh,container;
+			var controls,mag;
+			var box_pos_mat = {mat:[],x:0,y:0,z:0}
+
+			var norm_X,norm_Y,norm_Z;
+			var mesh2;
+			function setup() {
+
+				var W = window.innerWidth, H = window.innerHeight;
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize( W, H );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 50, W/H, 1, 10000 );
+				camera.position.z = 650;
+				camera.position.y = 150;
+
+				scene = new THREE.Scene();
+			 
+				
+				
+				container = new THREE.Object3D();
+				scene.add(container);
+				
+			 
+				
+				controls = new THREE.OrbitControls(camera);
+				
+				
+				pgeometry = new THREE.PlaneGeometry( 1000, 1000, 20, 20 );
+				 
+				pmaterial = new THREE.MeshPhongMaterial();
+				 
+		 
+				plane = new THREE.Mesh( pgeometry, pmaterial );
+				plane.rotation.x = - Math.PI / 2;
+				plane.receiveShadow	= true;
+				plane.scale.set( 30, 30, 30 );
+				container.add( plane );
+				
+				renderer.shadowMapEnabled = true;
+				
+				 
+			 
+				
+			 
+				
+				spotLight1 = new THREE.SpotLight( 0xffffff, 1.32 );
+				spotLight1.position.set( 100, 1000, 100 );
+				spotLight1.castShadow = true;
+				spotLight1.shadowDarkness = 0.52;
+				scene.add( spotLight1 );
+				
+				
+				
+				//physics
+				 
+					geometry = new THREE.BoxGeometry(20,20,20);
+				 material = new THREE.MeshPhongMaterial({shading: THREE.SmoothShading, color: 0x0e0a0a, ambient: 0xffffff, emissive: 0x969696, specular: 0xffffff, shininess: 100});
+				mesh = new THREE.Mesh(geometry, material);
+				mesh2 = new THREE.Mesh(geometry,new THREE.MeshBasicMaterial( {wireframe:true,color:0xff00ff} ));
+				 console.log(mesh.matrix)
+				
+
+				 box_pos_mat.mat = mesh.matrix.elements;
+
+				  mag = Math.sqrt(box_pos_mat.mat[13]* box_pos_mat.mat[13]+
+				 				  box_pos_mat.mat[14]* box_pos_mat.mat[14]+
+				 				   box_pos_mat.mat[15]* box_pos_mat.mat[15]);
+				  	//normalize
+				  	norm_X =box_pos_mat.mat[13]/mag; 
+				   	norm_Y =box_pos_mat.mat[14]/mag; 
+				    norm_Z =box_pos_mat.mat[15]/mag; 
+
+				     mesh2.position.copy(mesh.position)
+				 box_pos_mat.mat[13] = 320; 
+				mesh.castShadow = true;
+				container.add(mesh);
+				container.add(mesh2);
+  				//mesh.matrixAutoUpdate = false;
+
+  				mesh.position.y = 130
+
+			}
+            var vel = 0;
+            var time = new THREE.Clock(1);;
+            var g=-9.81
+            var contact = false;
+			function draw() {
+				vel +=.1;
+				//console.log(time)
+				requestAnimationFrame( draw );
+			
+				// experiment with code from the snippets menu here
+				// mesh.matrix
+			 
+			//	container.rotation.y +=.0009;
+				//mesh.position.z +=.9;
+
+				//accilartat
+				 
+	 mesh.position.y = Math.sin(time.getDelta()-.5*g*time.getDelta()*time.getDelta())
+					mesh2.position.copy(mesh.position)
+
+
+
+				renderer.render( scene, camera );
+
+			}
+
+			setup();
+			draw();
+
+		</script>
+		
+	</body>
+</html>

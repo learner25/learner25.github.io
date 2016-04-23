@@ -1,0 +1,72 @@
+<html>
+    <head><meta http-equiv="Content-Type" content="text/html; charset=windows-31j">
+        <script language="Javascript">
+            var line, word, LAT, LON, x, y, z, ll, R = 7500;
+            var x2 = 4500, y2 = x2 + 850;
+            var RadToDeg = Math.PI / 180;
+            var dot_size = 3;
+            var map_width = 635;
+            var map_height = 325;
+
+            function draw_point(x, y) {
+                dot = '<div style="position:absolute;width:' + dot_size + 'px;height:' + dot_size + 'px;top:' + y + 'px;left:' + x + 'px;background:#0000ff"></div>';
+                document.body.innerHTML += dot;
+            }
+            /*
+            function plot_point(lat, lng) {
+                // Mercator projection
+
+                // longitude: just scale and shift
+                x = (map_width * (180 + lng) / 360) % map_width + longitude_shift;
+
+                // latitude: using the Mercator projection
+                lat = lat * Math.PI / 180;  // convert from degrees to radians
+                y = Math.log(Math.tan((lat/2) + (Math.PI/4)));  // do the Mercator projection (w/ equator of 2pi units)
+                y = (map_height / 2) - (map_width * y / (2 * Math.PI)) + y_pos;   // fit it to our map
+
+                x -= x_pos;
+                y -= y_pos;
+
+                draw_point(x - half_dot, y - half_dot);
+            }
+            */
+            
+            function plot_point() {
+                var xmlhttp;
+                if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+                    xmlhttp = new XMLHttpRequest();
+                } else {// code for IE6, IE5
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                        line = xmlhttp.responseText.split("\n");
+                        //alert(xmlhttp.responseText);
+                        ll = line.length;
+                        for (var j = 0; j < ll; j++) {
+                            word = line[j].split(" ");
+                            LON = word[1] * RadToDeg;
+                            LAT = word[2] * RadToDeg;
+                            var cosLat = Math.cos(LAT), cosLon = Math.cos(LON);
+                            var sinLat = Math.sin(LAT), sinLon = Math.sin(LON);
+                            x = R * cosLat * cosLon - x2;
+                            y = R * sinLat - y2;
+                            // z = R * cosLat * sinLon;
+                            //console.log(x + " " + y);
+                            draw_point(x, y);
+                        }
+                    }
+                }
+                
+                xmlhttp.open("GET","wind.txt",true);
+                //xmlhttp.setRequestHeader('Content-Type', 'text/plain');
+                xmlhttp.send();
+            }
+        </script>
+    </head>
+    <body onload="window.setInterval(plot_point,5500);">
+        <!-- image found at http://www.math.ubc.ca/~israel/m103/mercator.png -->
+        <img src="hu-map.gif" style="position:absolute;top:0px;left:0px">
+    </body>
+</html>

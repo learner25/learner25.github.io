@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<script type="text/javascript" src="three68.js"></script>
+<script type="text/javascript" src="ThreeCSG.js"></script>
+<script type="text/javascript" src="OrbitControls.js"></script>
+<script type="text/javascript" src="TransformControls.js"></script>
+    <script type="text/javascript">
+var renderer, scene, camera, light,controls,control_t;
+
+window.onload = function() {
+	
+	renderer = new THREE.WebGLRenderer({antialias: true});
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.getElementById('viewport').appendChild(renderer.domElement);
+	
+	scene = new THREE.Scene();
+
+
+
+	light = new THREE.DirectionalLight( 0xffffff );
+	light.position.set( 1, 1, 1 ).normalize();
+	scene.add( light );
+	
+	camera = new THREE.PerspectiveCamera(
+		35,
+		window.innerWidth / window.innerHeight,
+		1,
+		1000
+	);
+	camera.position.set( 5, 5, 15 );
+	camera.lookAt( scene.position );
+	scene.add( camera );
+
+	// Example #1 - Cube (mesh) subtract Sphere (mesh)
+	(function() {
+
+        controls = new THREE.OrbitControls(camera);
+
+
+        var start_time = (new Date()).getTime();
+
+		var cube_geometry = new THREE.CubeGeometry( 13,.5, 13 );
+		var cube_mesh = new THREE.Mesh( cube_geometry );
+		cube_mesh.position.x =0;
+		var cube_bsp = new ThreeBSP( cube_mesh );
+
+        var cube_geometry2 = new THREE.CubeGeometry( 3,.5, 3 );
+        var cube_mesh2 = new THREE.Mesh( cube_geometry2 );
+        cube_mesh2.position.x =0;
+        var cube_bsp2 = new ThreeBSP( cube_mesh );
+
+
+
+		var sphere_geometry = new THREE.SphereGeometry( .8,12,12 );
+		var sphere_mesh = new THREE.Mesh( sphere_geometry );
+		sphere_mesh.position.x =1.25;
+        sphere_mesh.visible = false;
+        sphere_mesh.position.y =.29625;
+        //sphere_mesh.position.z =1.25;
+        sphere_mesh.scale.y = 2.65;
+        scene.add(sphere_mesh);
+
+
+		var sphere_bsp = new ThreeBSP( sphere_mesh );
+
+		var subtract_bsp = cube_bsp.subtract( sphere_bsp );
+		var result = subtract_bsp.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture('texture.png') }) );
+		result.geometry.computeVertexNormals();
+		scene.add( result );
+
+
+
+
+
+    var subtract_bsp2 = sphere_bsp.intersect(cube_bsp );
+        var result2 = subtract_bsp2.toMesh( new THREE.MeshLambertMaterial({ shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture('Utipinvernisclairv4.jpg') }) );
+        result2.geometry.computeVertexNormals();
+        scene.add( result2 );
+        result2.position.y = sphere_mesh.position.y-.213;
+        console.log(result2.position.y);
+       // console.log(result2);
+       //new bsps
+
+        var _bsp_container = new ThreeBSP(result);
+        var __bsp_to_diff = new ThreeBSP(result2);
+        result.position.set(0,.3,0);
+        var ___branch_bsp = _bsp_container.union(__bsp_to_diff);
+        var result3 = ___branch_bsp.toMesh(new THREE.MeshLambertMaterial({ shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture('Utipinvernisclairv4.jpg'),
+        side:THREE.DoubleSide
+        }));
+       // scene.add(result3);
+        result3.scale.set(.99,1,.998);
+       result3.position.set(0,-.1,0);
+
+        var _bsp_container2 = new ThreeBSP(result2);
+        var __bsp_to_diff2 = new ThreeBSP(result3);
+        //result.position.set(0,.3,0);
+
+        var ___branch_bsp2 = _bsp_container.subtract(__bsp_to_diff2);
+        var result4 = ___branch_bsp2.toMesh(new THREE.MeshLambertMaterial({ shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture('Utipinvernisclairv4.jpg'),
+            bumpMap: THREE.ImageUtils.loadTexture('Utipinvernisclairv4.jpg'),
+            side:THREE.DoubleSide
+
+        }));
+        //scene.add(result4);
+        //result4.position.y = 3.0;
+        //result4.scale.set(.7899,1,.7899);
+
+
+        var _bsp_container3 = new ThreeBSP(result3);
+        var __bsp_to_diff3 = new ThreeBSP(result4);
+        //result.position.set(0,.3,0);
+        var ___branch_bsp3 = _bsp_container3.union(__bsp_to_diff3);
+        var result5 = ___branch_bsp3.toMesh(new THREE.MeshLambertMaterial({ shading: THREE.SmoothShading, map: THREE.ImageUtils.loadTexture('Utipinvernisclairv4.jpg'),
+            bumpMap: THREE.ImageUtils.loadTexture('Utipinvernisclairv4.jpg'),
+            side:THREE.DoubleSide,
+
+        }));
+        //scene.add(result5);
+        //result4.position.y = 2.0;
+        result4.scale.set(.899,.99,.899);
+		console.log( 'Example 1: ' + ((new Date()).getTime() - start_time) + 'ms' );
+	})();
+
+
+	(function render() {
+		requestAnimationFrame( render );
+        renderer.setClearColor(0xffffff);
+        controls.update();
+
+
+        renderer.render(scene, camera);
+	})();
+}
+
+</script>
+
+<style type="text/css">
+	html, body {
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+	}
+</style>
+
+</head>
+
+<body>
+    
+	<div id="viewport"></div>
+	
+</body>
+
+</html>

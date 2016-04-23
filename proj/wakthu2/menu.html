@@ -1,0 +1,340 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+
+          .text-class  {
+    position: absolute;
+    transform: translate3d(-50%, -50%, 0px) matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 110, 120, 90, 1);
+    font-size: 22px;
+    text-shadow: 1px 1px 14px #16D3DA;
+    color: darkkhaki;
+    font-family: arial;
+	z-index:99999;
+        
+}
+
+           .backdrop {
+    background-image: url('back.jpg');
+    width: 2560px;
+    height: 1600px;
+}
+            .folder-class {
+                background-image: url('folder.png');
+                 padding: 32px;
+                background-position-x: 4px;
+               
+            
+            }
+            a 
+            {text-decoration:none;
+                 color:white;
+            }
+            
+            .text-class a:hover {
+                 -webkit-transition:all 1s;
+                 text-shadow: 2px 2px 4px #16A3DA;
+                 color:#FF0000;
+                 
+            
+            }
+		</style>
+	</head>
+	<body>
+		
+		<script src="three.min.js"></script>
+		<script src="CSS3DRenderer.js"></script>
+		  <link rel="stylesheet" href="css/style.css" /> <script src="tween.min.js"></script>
+		
+	</body>
+	<script>
+
+	 
+			
+			var camera, scene, renderer;
+			var geometry, material, mesh,mesh2;
+            var cssRenderer,scene2;
+			var mouseX = 0, mouseY = 0;
+			var particlesTotal = 120;
+			var positions = [];
+			var objects = [];
+			var current = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+			function setup() {
+
+				var W = window.innerWidth, H = window.innerHeight;
+				renderer = new THREE.WebGLRenderer({ alpha: true });
+				renderer.setSize( W, H );
+				document.body.appendChild( renderer.domElement );
+				renderer.domElement.style.position = 'absolute';
+				renderer.setClearColor(0xffffff,1);
+
+
+				camera = new THREE.PerspectiveCamera( 50, W/H, 1, 10000 );
+				camera.position.z = 700;
+
+				scene = new THREE.Scene();
+				var container = new THREE.Object3D();
+
+
+				
+
+				geometry = new THREE.PlaneGeometry(200, 200, 200);
+				material = new THREE.MeshNormalMaterial({shading: THREE.FlatShading});
+				mesh = new THREE.Mesh(geometry, material);
+				mesh.position.y = -120;
+				mesh.position.x = -350;
+				mesh.position.z = 90;
+				mesh.rotation.set(-Math.PI / 10, Math.PI / 7, 0);
+				 
+				scene.add(mesh);
+
+
+				geometry2 = new THREE.PlaneGeometry(100,100,100);
+				mesh2 = new THREE.Mesh(geometry2, material);
+				mesh2.position.y =80;
+				mesh2.position.x = -350;
+				mesh2.position.z = 90;
+				mesh2.rotation.set(Math.PI /12, Math.PI / 7, 0);
+				scene.add(mesh2);
+
+				geometry3 = new THREE.PlaneGeometry(100,100,100);
+				mesh3 = new THREE.Mesh(geometry2, material);
+				mesh3.position.y = 120;
+				mesh3.position.x = -110;
+				mesh3.position.z = 90;
+				scene.add(mesh3);
+
+				geometry4 = new THREE.PlaneGeometry(100,100,100);
+				mesh4 = new THREE.Mesh(geometry2, material);
+				mesh4.position.y = -120;
+				mesh4.position.x = -110;
+				mesh4.position.z = 90;
+				scene.add(mesh4);
+
+				geometry5 = new THREE.PlaneGeometry(100,100,100);
+				mesh5 = new THREE.Mesh(geometry2, material);
+				mesh5.position.y = -120;
+				mesh5.position.x = 110;
+				mesh5.position.z = 90;
+				scene.add(mesh5);
+
+
+
+               
+
+				geometry6 = new THREE.PlaneGeometry(2920, 1080, 1200);
+				mesh6 = new THREE.Mesh(geometry6, material);
+				mesh6.position.y = -15;
+				mesh6.position.x = -1;
+				mesh6.position.z = -190;
+				scene.add(mesh6);
+
+
+
+                scene2 = new THREE.Scene();
+                
+                var image = document.createElement('img');
+                image.addEventListener('load', function (event) {
+
+                    for (var i = 0; i < particlesTotal; i++) {
+
+                        var object = new THREE.CSS3DSprite(image.cloneNode());
+                        object.position.x = Math.random() * 140 - 120,
+						object.position.y = Math.random() * 140 - 120,
+						object.position.z = Math.random() * 140 - 120
+                      //  scene2.add(object);
+                        object.scale.set(.2,.2,.2);
+                        objects.push(object);
+
+                    }
+
+                   transition();
+
+                }, false);
+                image.src = 'sprite.png';
+
+			    // Plane
+                
+                var amountX = 160;
+                var amountZ = 320;
+                var separation = 150;
+                var offsetX = ((amountX - 1) * separation) / 2;
+                var offsetZ = ((amountZ - 1) * separation) / 2;
+
+                for (var i = 0; i < particlesTotal; i++) {
+
+                    var x = (i % amountX) * separation;
+                    var z = Math.floor(i / amountX) * separation;
+                    var y = (Math.sin(x * 0.5) + Math.sin(z * 0.5)) * 200;
+
+                    positions.push(x - offsetX, y, z - offsetZ);
+
+                }
+
+			    // Cube
+
+                var amount = 8;
+                var separation = 150;
+                var offset = ((amount - 1) * separation) / 2;
+
+                for (var i = 0; i < particlesTotal; i++) {
+
+                    var x = (i % amount) * separation;
+                    var y = Math.floor((i / amount) % amount) * separation;
+                    var z = Math.floor(i / (amount * amount)) * separation;
+
+                    positions.push(x - offset, y - offset, z - offset);
+
+                }
+
+			    // Random
+
+                for (var i = 0; i < particlesTotal; i++) {
+
+                    positions.push(
+						Math.random() * 4000 - 2000,
+						Math.random() * 4000 - 2000,
+						Math.random() * 4000 - 2000
+					);
+
+                }
+
+			    // Sphere
+
+                var radius = 750;
+
+                for (var i = 0; i < particlesTotal; i++) {
+
+                    var phi = Math.acos(-1 + (2 * i) / particlesTotal);
+                    var theta = Math.sqrt(particlesTotal * Math.PI) * phi;
+
+                    positions.push(
+						radius * Math.cos(theta) * Math.sin(phi),
+						radius * Math.sin(theta) * Math.sin(phi),
+						radius * Math.cos(phi)
+					);
+                   
+                }
+
+                cssRenderer = new THREE.CSS3DRenderer();
+				cssRenderer.setSize( W, H );
+				cssRenderer.domElement.style.position = 'relative';
+				cssRenderer.domElement.style.top = 0;
+					cssRenderer.domElement.setAttribute('id','particles');
+				document.body.appendChild(cssRenderer.domElement);
+
+				var element = document.createElement( 'div' );
+				element.setAttribute('class', 'text-class folder-class')
+				//element.setAttribute('href','index.html')
+				element.innerHTML = '<a href="index.html" target="_blank">START</a>'
+				 
+			    document.body.appendChild(element);
+				var cssObject = new THREE.CSS3DObject( element );
+			 
+				cssObject.position.copy(mesh.position);
+				cssObject.rotation.copy(mesh6.rotation);
+				 
+				scene2.add(cssObject);
+				
+				//
+				var element2 = document.createElement( 'div' );
+				element2.setAttribute('class','text-class folder-class')
+				//element.setAttribute('href','sign-up.html')
+				element2.innerHTML = '<a href="http://three2999.meteor.com" target="_blank"> GAME</a>';
+			   
+				var cssObject2 = new THREE.CSS3DObject( element2 );
+			 
+				cssObject2.position.copy(mesh2.position);
+				cssObject2.rotation.copy(mesh2.rotation);
+				 
+				scene2.add(cssObject2);
+				
+
+				var element3 = document.createElement('div');
+				element3.setAttribute('class', 'backdrop')
+			    //element.setAttribute('href','sign-up.html')
+				element3.innerHTML = 'hola';
+				element3.width = '1920px';
+
+				var cssObject3 = new THREE.CSS3DObject(element3);
+
+				cssObject3.position.copy(mesh6.position);
+				cssObject3.rotation.copy(mesh6.rotation);
+                
+
+				scene2.add(cssObject3);
+
+			}
+
+			function transition() {
+
+			    var offset = current * particlesTotal * 3;
+			    var duration = 12000;
+
+			    for (var i = 0, j = offset; i < particlesTotal; i++, j += 3) {
+
+			        var object = objects[i];
+
+			        new TWEEN.Tween(object.position)
+						.to({
+						    x: positions[j],
+						    y: positions[j + 1],
+						    z: positions[j + 2]
+						}, Math.random() * duration + duration)
+						.easing(TWEEN.Easing.Exponential.InOut)
+						.start();
+
+			    }
+
+			    new TWEEN.Tween(this)
+					.to({}, duration * 3)
+					.onComplete(transition)
+					.start();
+
+			    current = (current + 1) % 4;
+
+			}
+
+			document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+			function onDocumentMouseMove( event ) {
+
+				mouseX = ( event.clientX - windowHalfX ) / 6;
+				mouseY = ( event.clientY - windowHalfY ) / 5;
+
+			}
+			function draw() {
+
+					camera.position.x += ( mouseX - camera.position.x ) * .5;
+				camera.position.y += ( - mouseY - camera.position.y ) * .5;
+
+				camera.lookAt( scene.position );
+
+				requestAnimationFrame( draw );
+				TWEEN.update();
+				// experiment with code from the snippets menu here
+
+				renderer.render( scene, camera );
+				cssRenderer.render(scene2,camera)
+
+			}
+
+			setup();
+			draw();
+
+		</script>
+		 <script type='text/javascript' src='js/jquery.particleground.js'></script>
+       
+		  
+		
+ 
+</html>

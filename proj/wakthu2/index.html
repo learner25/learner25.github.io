@@ -1,0 +1,411 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>walkthrough demo</title>
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+				font-family: arial;
+			}
+
+			#blocker {
+
+				position: absolute;
+
+				width: 100%;
+				height: 100%;
+
+				
+
+			}
+
+			#instructions {
+
+				width: 100%;
+				height: 100%;
+
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+
+				color: #ffffff;
+				text-align: center;
+
+				cursor: pointer;
+                background:black;
+
+			}
+
+		</style>
+		<link rel="stylesheet" type="text/css" href="gui/style.css">
+			
+		 
+        <script src="three.min.js"></script>
+	</head>
+	<body>
+		
+	
+        <script src="ColladaLoader.js"></script>
+        <script src="OrbitControls.js" type="text/javascript"></script>
+
+        <script src="MD2Character.js" type="text/javascript"></script>
+          <script src="MD2CharacterComplex.js" type="text/javascript"></script>
+            <script src="hero.js" type="text/javascript" charset="utf-8"></script>
+		    <script src="villian.js" type="text/javascript"></script>
+           <script src="world.js" type="text/javascript"></script>
+           <script src="tween.js" type="text/javascript"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.5.0/cannon.min.js"></script>
+
+          <!--  <div id="blocker">
+
+			<div id="instructions">
+				<span style="font-size:40px">Click to play</span>
+				<br />
+				(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+			</div>
+
+		</div> -->
+
+		<script>
+
+			var camera, scene, renderer;
+			var geometry, material, mesh;
+			var camcontrols,hukka,dae;
+			var casto,dir;
+			var objects = [];
+			var characters = [];
+			var nCharacters = 0;
+			var raycaster,body,bbody,pmesh;
+            var clock = new THREE.Clock();
+			var blocker = document.getElementById( 'blocker' );
+			var instructions = document.getElementById( 'instructions' );
+           
+            var controls = {
+
+				moveForward: false,
+				moveBackward: false,
+				moveLeft: false,
+				moveRight: false
+
+			};
+           
+
+           
+                       
+            
+             var loader = new THREE.ColladaLoader();
+             var shake = false,angle=0;
+			world();
+            villian();
+	        init();
+			animate();
+                   
+			function init() {
+
+
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+
+				scene = new THREE.Scene();
+				 
+                
+				var light = new THREE.DirectionalLight( 0xffffff, 2.25 );
+				light.position.set( 200, 350, 500 );
+
+				light.castShadow = true;
+				light.shadowMapWidth = 3078;
+				light.shadowMapHeight = 3078;
+				light.shadowMapDarkness = 1000;
+				 
+				//light.shadowCameraVisible = true;
+				world = new CANNON.World();
+				world.broadphase = new CANNON.NaiveBroadphase();
+				world.gravity.set(0, -90.82, 0);
+               
+
+				 
+
+				scene.add( light );
+
+             
+
+				var light = new THREE.DirectionalLight( 0xffffff, 0.75 );
+				light.position.set( -1, - 0.5, -1 );
+				scene.add( light );
+
+				camcontrols = new THREE.OrbitControls( camera );
+				//scene.add( camcontrols);
+
+				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 1, -9.2, 1 ), 0, 10 );
+
+				 
+               hero();
+ 
+			
+
+               character.root.position.y = 100;
+ 
+
+				geometry = new THREE.BoxGeometry( 20, 20, 20 );
+
+				
+				//
+                
+                var path = "textures/cube/skybox/";
+				var format = '.jpg';
+				var urls = [
+						path + 'px' + format, path + 'nx' + format,
+						path + 'py' + format, path + 'ny' + format,
+						path + 'pz' + format, path + 'nz' + format
+					];
+
+				var reflectionCube = THREE.ImageUtils.loadTextureCube( urls );
+				reflectionCube.format = THREE.RGBFormat;
+
+                var shader = THREE.ShaderLib[ "cube" ];
+				shader.uniforms[ "tCube" ].value = reflectionCube;
+
+				var material = new THREE.ShaderMaterial( {
+
+					fragmentShader: shader.fragmentShader,
+					vertexShader: shader.vertexShader,
+					uniforms: shader.uniforms,
+					depthWrite: false,
+					side: THREE.DoubleSide
+
+				} ),
+
+				mesh2 = new THREE.Mesh( new THREE.BoxGeometry( 500, 500,500 ), material );
+				scene.add( mesh2 );
+				mesh2.name = 'skybox'
+                mesh2.position.y = 120;
+                dir = new THREE.Vector3( 0,0,1 )
+               
+				renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setClearColor( 0xffffff );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+                  
+
+                
+				renderer.shadowMapEnabled = true;
+				document.body.appendChild( renderer.domElement );
+                    	document.getElementsByTagName("canvas")[0].addEventListener("click", function() {
+  this.requestPointerLock();
+}, false);
+
+                   renderer.shadowMapCascade = true;
+				   renderer.shadowMapType = THREE.PCFSoftShadowMap;
+
+				//
+                //  scene.fog = new THREE.Fog( 0x87CEEB,8, 500 );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				document.addEventListener( 'keydown', onKeyDown, false );
+				document.addEventListener( 'keyup', onKeyUp, false );
+
+
+               function onKeyDown ( event ) {
+
+				switch( event.keyCode ) {
+
+					case 38: /*up*/
+				    case 87: /*W*/ 	controls.moveForward = true;
+                        body.position.copy(character.root.position)
+				     shake = true;
+  				
+					break;
+
+					case 40: /*down*/
+					case 83: /*S*/ 	 controls.moveBackward = true; 
+                
+					break;
+
+					case 37: /*left*/
+					case 65: /*A*/   controls.moveLeft = true; break;
+
+					case 39: /*right*/
+					case 68: /*D*/    controls.moveRight = true; break;
+
+					//case 67: /*C*/     controls.crouch = true; break;
+					//case 32: /*space*/ controls.jump = true; break;
+					//case 17: /*ctrl*/  controls.attack = true; break;
+
+				}
+
+			};
+
+			function onKeyUp ( event ) {
+
+				switch( event.keyCode ) {
+
+					case 38: /*up*/
+					case 87: /*W*/ controls.moveForward = false; 
+ 						shake = false;
+					break;
+
+					case 40: /*down*/
+					case 83: /*S*/ 	 controls.moveBackward = false; break;
+
+					case 37: /*left*/
+					case 65: /*A*/ 	 controls.moveLeft = false; break;
+
+					case 39: /*right*/
+					case 68: /*D*/ 	  controls.moveRight = false; break;
+
+					case 67: /*C*/     controls.crouch = false; break;
+					case 32: /*space*/ controls.jump = false; break;
+					case 17: /*ctrl*/  controls.attack = false; break;
+
+				}
+
+			};
+
+			geometry = new THREE.TorusKnotGeometry(100, 40, 64, 8, 2, 3, 1);
+			material = new THREE.MeshNormalMaterial();
+			mesh = new THREE.Mesh(geometry, material);
+			mesh.scale.set(.2,.2,.2);
+			mesh.position.y = 399.26;
+
+			mesh.castShadow = true;
+			//scene.add(mesh);
+
+			var shape = new CANNON.Sphere(5);
+			var phbody = new CANNON.RigidBody(0, shape);
+			phbody.position.y = character.root.position.y;
+			world.add(phbody);
+
+			var pshape = new CANNON.Plane(1000);
+			var pphbody = new CANNON.RigidBody(0, pshape);
+			pphbody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0,0), -Math.PI / 2);
+			world.add(pphbody);
+                 
+
+			var plane = new THREE.SphereGeometry(10, 10, 10, 10);
+			var mat = new THREE.MeshNormalMaterial();
+			pmesh = new THREE.Mesh(plane, mat);
+            scene.add(pmesh);
+            pmesh.position.y = 8;
+
+            var ref_shape = new CANNON.Sphere(5);
+            var ref_body = new CANNON.RigidBody(1, ref_shape);
+            ref_body.position.y =  pmesh.position.y
+            
+                world.add(ref_body)
+			 
+			    //physcis ended
+                bbody = ref_body;
+			 body = phbody;
+                
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+			
+
+			function animate() {
+               requestAnimationFrame( animate );
+               world.step(1 / 60);
+             //  body.position.copy(character.root.position);
+               body.position.set(character.root.position.x, character.root.position.y, character.root.position.z);
+               pmesh.position.copy(bbody.position);
+                casto = new THREE.Raycaster(character.root.position, 
+                	dir, 
+                	0, 
+                	10);
+               casto.ray.origin.copy( character.root.position );
+				 
+               
+				var intersections = casto.intersectObjects( objects );
+ 
+				 
+                
+                var arro = new THREE.ArrowHelper(dir,character.root.position,
+                	10,0xff00ff);
+                //scene.add(arro)
+
+
+
+               var delta = clock.getDelta();
+               angle+=.39;
+				 
+
+				for ( var i = 0; i < nCharacters; i ++ ) {
+
+					characters[ i ].update( delta );
+					 
+
+				}
+
+                 
+					//camera.position.copy(characters.position)
+				
+
+					if(dae)
+                  scene.add(dae);
+                  THREE.AnimationHandler.update(delta );
+                  //dae.castShadow = true;
+                 // dae.recieveShadow = true;
+                //  renderer.setClearColor(scene.fog.color,1);
+				
+              
+                  
+                
+                camcontrols.update(delta);
+                if(character && villianGlobalPosition)
+               { if(character.root.position.distanceTo(follower.position)<=50)
+                               {	
+                               //	villianGlobalPosition.rotation.y= Math.PI/3;
+                               follower.position.x = character.root.position.x-5 
+                               	follower.position.z = character.root.position.z + 19
+                               	//villianGlobalPosition.lookAt(character.root.position);
+                                
+                               	follower.lookAt(character.root.position);
+               }
+                
+              
+                               	  follower.position.y= -3;
+                           }
+                if(shake)
+                	 camera.position.y +=Math.sin(Math.PI*angle*.193)
+                TWEEN.update(delta);
+               
+				renderer.render( scene, camera );
+
+			}
+                
+		</script>
+		 
+			<img   id="character" src="gui/char.JPG" alt="">
+		    <div id="life">
+		    	<div id="life-bar">
+		    		
+		    	</div>
+		    </div>
+	</body>
+</html>

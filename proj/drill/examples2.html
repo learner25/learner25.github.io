@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<script type="text/javascript" src="three68.js"></script>
+<script type="text/javascript" src="ThreeCSG.js"></script>
+<script type="text/javascript" src="OrbitControls.js"></script>
+<script type="text/javascript" src="TransformControls.js"></script>
+<script type="text/javascript" src="sole-tween.js"></script>
+<script type="text/javascript" src="dat-gui.js"></script>
+<script type="text/javascript">
+var renderer, scene, camera, light,controls,helper2;
+var currentmesh;
+var ext=0.4;
+var modes = {
+    isDrillMode : false,
+    isFixingMode:false,
+    isSawMode:false
+}
+window.onload = function() {
+
+
+    function setupGui() {
+        effectController = {
+            fov:.4
+        };
+        var gui = new dat.GUI();
+        var element = gui.add( effectController, "fov", -1.0, 1.0 );
+        element.name("field of view");
+    }
+
+
+   setupGui();
+    var control_t,cube_mesh,cube_back;
+    var resulting_top_mesh,top;
+    renderer = new THREE.WebGLRenderer({antialias: true,depthTest:true});
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    var container = document.getElementById('viewport');
+    container.appendChild(renderer.domElement);
+
+    scene = new THREE.Scene();
+
+
+
+    light = new THREE.DirectionalLight( 0xffffff );
+    light.position.set( 15, 10, 15 );
+    light.intensity =54/100;
+    scene.add( light );
+
+    var  light2 = new THREE.DirectionalLight( 0xffffff );
+    light2.position.set( -15, 10, -15 );
+    light2.intensity =54/100;
+    scene.add( light2 );
+
+    var  light3 = new THREE.DirectionalLight( 0xffffff );
+    light3.position.set( -15, 10, 15 );
+    light3.intensity =44/100;
+    scene.add( light3 );
+
+    var  light4 = new THREE.DirectionalLight( 0xaeaeae );
+    light4.position.set( 15, -130, -150 );
+    light4.intensity =44/100;
+    scene.add( light4 );
+
+    camera = new THREE.PerspectiveCamera(
+            35,
+                    window.innerWidth / window.innerHeight,
+            1,
+            1000
+    );
+    camera.position.set( 5, 5, 15 );
+    camera.lookAt( scene.position );
+    scene.add( camera );
+
+    // Example #1 - Cube (mesh) subtract Sphere (mesh)
+    (function() {
+
+        controls = new THREE.OrbitControls(camera);
+        controls.center.set( 0,0.5, 0);
+
+
+
+
+        var cube_geometry = new THREE.CubeGeometry( 15,.0185, 15 );
+        var cube_back_geometry = new THREE.CubeGeometry( 15,.85, 15 );
+        cube_mesh = new THREE.Mesh( cube_geometry,new THREE.MeshLambertMaterial(
+                {map:new THREE.ImageUtils.loadTexture('Red.jpg'),
+                    transparent:true,
+                    opacity:1.3}));
+        cube_back =new THREE.Mesh( cube_back_geometry,new THREE.MeshLambertMaterial(
+                {map:new THREE.ImageUtils.loadTexture('wooden.jpg'),
+                    transparent:true
+                }));
+        cube_back.position.y =-1* (.85/2);
+
+        scene.add(cube_back)
+
+        cube_mesh.position.x =0;
+
+        scene.add(cube_mesh);
+
+        var cube_bsp = new ThreeBSP( cube_mesh );
+
+        var cube_geometry2 = new THREE.CubeGeometry( 3,.95, 3 );
+        var cube_mesh2 = new THREE.Mesh( cube_geometry2 );
+        cube_mesh2.position.x =0;
+        var cube_bsp2 = new ThreeBSP( cube_mesh );
+        var result;
+        var spheres,sphere_bsp,ref_screw;
+        var ref_buffer = [];
+
+
+//             spheres are the golden globals
+
+        var top =new ThreeBSP(cube_mesh);
+        var back_bsp = new ThreeBSP(cube_back);
+        var resulting_top;
+        var resulting_back_mesh;
+
+        function operation(x,y,z)
+
+        {
+
+
+            //mesh2.position.y = ext;
+            if(helper2)
+            {
+                helper2.position.x = currentmesh.position.x;
+                helper2.position.y = ext;
+                helper2.position.z = currentmesh.position.z;
+
+                spheres=new ThreeBSP(helper2);
+                top = top.subtract(spheres);
+                back_bsp = back_bsp.subtract(spheres);
+
+
+            }
+
+
+
+
+            resulting_top_mesh = top.toMesh(new THREE.MeshLambertMaterial(
+                    {map:new THREE.ImageUtils.loadTexture('Red.jpg')}
+            ));
+
+            scene.add(resulting_top_mesh);
+
+            //resulting_top_mesh.position.y+=1;
+
+            resulting_back_mesh = back_bsp.toMesh(new THREE.MeshLambertMaterial(
+                    {
+                        map:new THREE.ImageUtils.loadTexture('wooden.jpg'),
+                        transparent:true
+                    }
+            ));
+
+            // cube_back.visible = false;
+            scene.add(resulting_back_mesh);
+
+            scene.traverse(function(child){
+                if(child instanceof THREE.Mesh && child.name==="screw")
+                    scene.remove(child)
+            })
+
+        }
+        ///// the drill machine //////
+        var project,mousevec,intersect;
+        project = new THREE.Projector();
+        mousevec = new THREE.Vector3();
+
+        var helper = new THREE.Mesh(
+
+                new THREE.CylinderGeometry(.63,.63,2.5,5,5),
+                new THREE.MeshPhongMaterial({
+                    color:0xff00ff,
+                    transparent:true,
+                    opacity:.62
+                })
+        );
+
+
+        scene.add(helper);
+
+        window.document.addEventListener('mousemove',drill,false);
+        function drill(e)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+
+            mousevec.x = 2*(e.clientX/container.clientWidth)-1;
+            mousevec.y = -(e.clientY/container.clientHeight)*2+1;
+            mousevec.z = 0.20;
+
+
+            var rayc = project.pickingRay(mousevec.clone(),camera);
+            var intersections = rayc.intersectObjects(scene.children,true);
+//              mousevec.y = ();
+//             mousevec.z = ();
+            //console.log("the length of intersections: "+intersections.length);
+            if(intersections.length>0 )
+            {
+
+                for(i=0;i<intersections.length;i++)
+                {
+                    //console.log((intersections.point))
+                    intersect = intersections[i];
+                    var obj = intersections[i].object;
+                    helper.position.copy(intersect.point);
+                    //console.log(helper.position)
+                    if(helper.position.z>=15/2 )
+                         helper.position.z = 15/2;
+                    else if(helper.position.x>=15/2 )
+                        helper.position.x = 15/2;
+                    else if(helper.position.x<=-15/2 )
+                        helper.position.x = -15/2;
+                    else if(helper.position.y>=.51 )
+                        helper.position.y =.51;
+
+                    else if(helper.position.y<=-.51 )
+                        helper.position.y =-.51;
+
+                    else if(helper.position.z<=-15/2 )
+                        helper.position.z =-15/2;
+                }
+
+            }
+
+
+        }
+        document.addEventListener("mouseup",click,false);
+        function click(e)
+        {
+            //e.preventBubble();
+
+            mousevec.x = 2*(e.clientX/container.clientWidth)-1;
+            mousevec.y = -(e.clientY/container.clientHeight)*2+1;
+            mousevec.z = 0.20;
+
+
+            var rayc = project.pickingRay(mousevec.clone(),camera);
+            var intersections = rayc.intersectObjects(scene.children);
+
+            // console.log("the length of intersections: "+intersections.length);
+
+
+
+            helper2 = new THREE.Mesh(
+
+                    new THREE.CylinderGeometry(.3,.3,2.5,5,56),
+                    new THREE.MeshLambertMaterial({color:0xffffff,map:THREE.ImageUtils.loadTexture('wooden.jpg'),side:THREE.DoubleSide})
+            );
+            helper2.material.map.wrap_t = helper2.material.map.wrap_s=THREE.RepeatWrapping;
+           // helper2.material.map.repeat.set(2.1,.1);
+            helper2.name = "screw";
+
+            if(intersections.length>1) {
+                if (e.button == 0)
+                {
+
+                    e.preventDefault();
+                    e.stopPropagation();
+                    helper2.position.x =intersect.point.x;
+                    helper2.position.z = intersect.point.z;
+
+                    //if(intersect.object==cube_mesh)
+                    cube_back.material.opacity=.6;
+                    if(resulting_back_mesh)
+                    {
+                        cube_back.visible=false;
+                        resulting_back_mesh.material.opacity = .6;
+                    }
+
+
+
+
+
+
+                    new TWEEN.Tween( camera.position ).to( {
+                        x:helper2.position.clone().normalize().multiplyScalar(13.75).x,
+                        y:helper2.position.clone().normalize().multiplyScalar(23.75).y,
+                        z:helper2.position.clone().normalize().multiplyScalar(13.75).z}, 500 )
+                            .easing( TWEEN.Easing.Circular.Out).start();
+
+
+
+
+                    currentmesh = helper2;
+                    scene.add(helper2);
+
+
+
+
+//                        console.log(spheres.length);
+//                    if(spheres.length>37)
+//                       throw('can\'t support more than 37 pins')
+
+                }
+
+
+            }
+            if(e.button==2)
+            {
+
+
+                if(resulting_top_mesh)
+                    resulting_top_mesh.visible = false;
+                if(resulting_back_mesh)
+                    resulting_back_mesh.visible = false;
+                cube_mesh.material.opacity=0.0;
+                cube_back.material.opacity=0.0;
+                operation();
+                // console.log(scene.children)
+
+
+
+            }
+
+        }
+
+
+    })();
+
+
+    (function render() {
+
+        requestAnimationFrame( render );
+        renderer.setClearColor(0xffffff);
+        ext = effectController.fov;
+
+        if(helper2){
+
+            helper2.position.y =ext;
+            helper2.rotation.y+=.03;}
+        controls.update();
+        TWEEN.update();
+
+        renderer.render(scene, camera);
+    })();
+}
+
+</script>
+
+<style type="text/css">
+    html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+</style>
+
+</head>
+
+<body>
+<section><a href="#"></a> </section>
+<div id="viewport"></div>
+
+</body>
+
+</html>

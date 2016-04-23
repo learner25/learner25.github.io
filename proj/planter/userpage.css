@@ -1,0 +1,24 @@
+body
+{
+    font-family:arial;
+}
+section {
+    float: right;
+    margin-top: -72px;
+    width: 10%;
+	font-size: 23px;
+}
+
+li {
+    list-style: none;
+    float: left;
+    margin-left: 4%;
+}
+ul {
+    padding-bottom: 1%;
+	width:30%;
+}
+header {
+    /* padding: 0%; */  background-color: rgb(240, 240, 11);  padding: 1%;  };
+}
+

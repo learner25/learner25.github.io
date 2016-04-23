@@ -1,0 +1,82 @@
+﻿<html>
+<head>
+<script type="text/javascript" src="three.min.js"></script>
+		
+		
+
+	<script type="text/javascript" src="js/renderers/CSS3DRenderer.js"></script>
+   
+
+<script>
+ var scene,camera,plane,renderer,material,mesh,clock,controls,keyboard,cube,holder,flag=false,effect,count=0,container, planemesh,body,cube2,geo2,width=7,cube3,test,effect;
+ var startime,quaternion ;
+ var origin,direction,near,far;
+ origin = new THREE.Vector3();
+ direction = new THREE.Vector3();
+ var  cssRenderer;
+ var slice1=100,slice2=100;
+ 
+  
+			function onload()
+			
+			{
+			    container = document.getElementById('container');
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize(container.offsetWidth,container.offsetHeight);
+				
+				
+				container.appendChild(renderer.domElement);
+				
+				scene = new THREE.Scene();
+				
+				camera = new THREE.PerspectiveCamera(45,container.offsetWidth/container.offsetHeight,.1,10000);
+				camera.position = new THREE.Vector3(0,0,5);
+				scene.add(camera);
+				
+				planemesh = new THREE.Mesh(new THREE.SphereGeometry(1,slice1,slice2),new THREE.MeshBasicMaterial({opacity:0.5,color:0x0000ef,wireframe:true}));
+				scene.add(planemesh);
+				console.log(planemesh.geometry.faces.length);
+			    //renderer.setClearColor(0x000000);
+				var get_id = document.getElementById('description');
+	            get_id.innerHTML = 'No. of polygon: '+ planemesh.geometry.faces.length;
+				anim();
+				
+   
+			}
+
+   
+
+function anim() {
+   
+    requestAnimationFrame(anim);
+	 
+	
+	 document.addEventListener('keydown', function(event) {
+    if(event.keyCode == 38) {
+        slice1+=200;
+		slice2+=200;
+		console.log(planemesh.geometry.widthSegments);
+    }
+    else if(event.keyCode == 40) {
+       slice1-=200;
+	   slice2-=200;
+    }
+});
+	planemesh.rotation.y+=.003;
+	//planemesh.rotation.x+=.003;
+	renderer.render(scene,camera);
+	
+}
+
+
+
+</script>
+</head>
+<body onload="onload();">
+ <div id="container" style="width:95%;height:95%;position:absolute;">
+ 
+  </div>
+  <div id = "description">
+  </div>
+</body>
+</html>

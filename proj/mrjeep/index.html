@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	
+		<meta charset="utf-8">
+		
+		    <script type="text/javascript" src="palette/docs/jquery-1.9.1.js"></script>
+		<script src="palette/spectrum.js"></script>
+		<style>
+		body {
+				background-color: #ffffff;
+				margin: 0;
+				//overflow: hidden;
+			}
+			#menu-bar {
+  width: 95%;
+  margin: 0px 0px 0px 0px;
+  padding: 6px 6px 4px 6px;
+  height: 40px;
+  line-height: 100%;
+  border-radius: 24px;
+  -webkit-border-radius: 24px;
+  -moz-border-radius: 24px;
+  box-shadow: 2px 2px 3px #666666;
+  -webkit-box-shadow: 2px 2px 3px #666666;
+  -moz-box-shadow: 2px 2px 3px #666666;
+  background: #8B8B8B;
+  background: linear-gradient(top,  #A9A9A9,  #7A7A7A);
+  background: -ms-linear-gradient(top,  #A9A9A9,  #7A7A7A);
+  background: -webkit-gradient(linear, left top, left bottom, from(#A9A9A9), to(#7A7A7A));
+  background: -moz-linear-gradient(top,  #A9A9A9,  #7A7A7A);
+  border: solid 1px #6D6D6D;
+ // position:relative;
+  z-index:9999;
+}
+#menu-bar li {
+  margin: 0px 0px 6px 0px;
+  padding: 0px 6px 0px 6px;
+  float: left;
+  position: relative;
+  list-style: none;
+}
+#menu-bar a {
+  font-weight: bold;
+  font-family: arial;
+  font-style: normal;
+  font-size: 12px;
+  color: #E7E5E5;
+  text-decoration: none;
+  display: block;
+  padding: 6px 20px 6px 20px;
+  margin: 0;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  text-shadow: 2px 2px 3px #000000;
+}
+#menu-bar li ul li a {
+  margin: 0;
+}
+#menu-bar .active a, #menu-bar li:hover > a {
+  background: #0399D4;
+  background: linear-gradient(top,  #EBEBEB,  #A1A1A1);
+  background: -ms-linear-gradient(top,  #EBEBEB,  #A1A1A1);
+  background: -webkit-gradient(linear, left top, left bottom, from(#EBEBEB), to(#A1A1A1));
+  background: -moz-linear-gradient(top,  #EBEBEB,  #A1A1A1);
+  color: #444444;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  text-shadow: 2px 2px 3px #FFFFFF;
+}
+#menu-bar ul li:hover a, #menu-bar li:hover li a {
+  background: none;
+  border: none;
+  color: #666;
+  -box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+}
+#menu-bar ul a:hover {
+  background: #0399D4 !important;
+  background: linear-gradient(top,  #04ACEC,  #0186BA) !important;
+  background: -ms-linear-gradient(top,  #04ACEC,  #0186BA) !important;
+  background: -webkit-gradient(linear, left top, left bottom, from(#04ACEC), to(#0186BA)) !important;
+  background: -moz-linear-gradient(top,  #04ACEC,  #0186BA) !important;
+  color: #FFFFFF !important;
+  border-radius: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  text-shadow: 2px 2px 3px #FFFFFF;
+}
+#menu-bar ul {
+  background: #DDDDDD;
+  background: linear-gradient(top,  #FFFFFF,  #CFCFCF);
+  background: -ms-linear-gradient(top,  #FFFFFF,  #CFCFCF);
+  background: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#CFCFCF));
+  background: -moz-linear-gradient(top,  #FFFFFF,  #CFCFCF);
+  display: none;
+  margin: 0;
+  padding: 0;
+  width: 185px;
+  position: absolute;
+  top: 25px;
+  left: 0;
+  border: solid 1px #B4B4B4;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-box-shadow: 2px 2px 3px #222222;
+  -moz-box-shadow: 2px 2px 3px #222222;
+  box-shadow: 2px 2px 3px #222222;
+}
+#menu-bar li:hover > ul {
+  display: block;
+}
+#menu-bar ul li {
+  float: none;
+  margin: 0;
+  padding: 0;
+}
+#menu-bar ul a {
+  padding:10px 0px 10px 15px;
+  color:#424242 !important;
+  font-size:12px;
+  font-style:normal;
+  font-family:arial;
+  font-weight: normal;
+  text-shadow: 2px 2px 3px #FFFFFF;
+}
+#menu-bar ul li:first-child > a {
+  border-top-left-radius: 10px;
+  -webkit-border-top-left-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  border-top-right-radius: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topright: 10px;
+}
+#menu-bar ul li:last-child > a {
+  border-bottom-left-radius: 10px;
+  -webkit-border-bottom-left-radius: 10px;
+  -moz-border-radius-bottomleft: 10px;
+  border-bottom-right-radius: 10px;
+  -webkit-border-bottom-right-radius: 10px;
+  -moz-border-radius-bottomright: 10px;
+}
+#menu-bar:after {
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+#menu-bar {
+  display: inline-block;
+}
+  html[xmlns] #menu-bar {
+  display: block;
+}
+* html #menu-bar {
+  height: 1%;
+}
+		</style>
+		<link rel="stylesheet" type="text/css" href="palette/spectrum.css">
+		<script>
+var counter = 0;
+function pro(evt)
+{
+ counter = (evt.loaded/evt.total)*100;
+  document.getElementById('loadbar').value = Math.round(counter);
+  console.log(evt.total);
+
+}
+function loader()
+{
+var ajax;
+
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  ajax=new XMLHttpRequest();
+  ajax.addEventListener("progress",pro,false);
+ajax.open("GET","bumperSara/bumperSara.dae",true);
+console.log("loading "+counter);
+  }
+else
+  {// code for IE6, IE5
+  ajax=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+ 
+ajax.onreadystatechange=function()
+  {
+  if (ajax.readyState==4 && ajax.status==200)
+    {
+	
+   document.getElementById('loadbar').remove();
+     
+    }
+  }
+
+;
+//document.getElementById('loadbar').innerHTML = "   loading....." ;
+ajax.send();
+}
+
+
+</script>
+	</head>
+	<body onload="loader();">
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
+		<script src="three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/loaders/ColladaLoader.js"></script>
+		
+		
+		<script>
+         
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			var cubeCamera;
+			var camera, scene, renderer;
+			var geometry, material, mesh,controls;
+			var dae,effect,textureCube;
+            var body_color ={r:163,g:127,b:74};
+			var bumpers = [];
+            var dae2;
+			function setup() {
+                cubeCamera = new THREE.CubeCamera( 1, 10000, 256 );
+				
+                var W = window.innerWidth, H = window.innerHeight;
+				renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setSize( W, H );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 50, W/H, 1, 10000 );
+				camera.position.set( -10.698482291513074,4.427487810099056, -29.804954596756506);
+				//camera.rotation.set(-1.6794206483927632,1.0731877074012364,1.6942691173311664);
+					
+				scene = new THREE.Scene();
+				scene.add(camera);
+				scene.fog = new THREE.Fog( 0x87CEEB,10, 550 );
+				
+				//h-q textures
+				var r = "cube/Park2/";
+				var urls = [ r + "posx.jpg", r + "negx.jpg",
+							 r + "posy.jpg", r + "negy.jpg",
+							 r + "posz.jpg", r + "negz.jpg" ];
+
+				textureCube = THREE.ImageUtils.loadTextureCube( urls );
+				
+				
+                
+                cubeCamera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter;
+				scene.add( cubeCamera );
+				
+				/*var loadere = new THREE.JSONLoader().load('bumperSara/voo.js',function(geometry){
+				material = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xffffff, side: THREE.DoubleSide,specular:3,envMap:textureCube,reflectivity:.09});
+				geometry.computeVertexNormals();
+				geometry.computeFaceNormals();
+				geometry.VerticesNeedUpdate = true;
+				geometry.FacesNeedUpdate = true;
+				mesh = new THREE.Mesh(geometry, material);
+				mesh.scale.set(52,52,52);
+				mesh.position.y = 2.41;
+				mesh.castShadow = true;
+				scene.add(mesh)
+				draw();
+				});*/
+				
+			var loader = new THREE.ColladaLoader();
+
+  loader.options.convertUpAxis = true;
+
+  loader.load( 'bumperSara/bumperSara.dae', function ( collada ) {
+ //dummy1.dae
+
+    dae = collada.scene;
+
+    var skin = collada.skins[ 0 ];
+console.log(dae.children[2]);
+dae.position.set(0,0,0);//x,z,y- if you think in blender dimensions ;)
+dae.scale.set(4.,4.,4.);
+dae.rotation.x = -Math.PI/2;
+dae.children[1].traverse(function(child){
+if(child instanceof THREE.Mesh)
+{ 
+    child.castShadow = true;
+   // child.receiveShadow = true;
+}
+   if(child.name==='Bumper' || child.name==='bumper1' || child.name ==='bumper2')
+    bumpers.push(child);
+       
+   	 if(child.name==='Bumper')
+	   {
+	   
+	  child.visible = true;
+          
+	   }
+	   	 if(child.name==='bumper2')
+		 {
+		   
+		 child.visible = false;
+		   
+		 }
+		  if(child.name==='bumper1')
+		 {
+		   child.visible = false;
+		  
+		 }
+  
+  console.log(child);
+  });
+
+scene.add(dae);
+draw();
+});
+ 
+
+var shader = THREE.ShaderLib[ "cube" ];
+				shader.uniforms[ "tCube" ].value = textureCube;
+
+				var material = new THREE.ShaderMaterial( {
+
+					fragmentShader: shader.fragmentShader,
+					vertexShader: shader.vertexShader,
+					uniforms: shader.uniforms,
+					side: THREE.BackSide,
+					
+
+				} );
+				
+
+
+
+      
+	  	var loader2 = new THREE.ColladaLoader();
+
+  loader2.options.convertUpAxis = true;
+
+  loader2.load( 'house.dae', function ( collada ) {
+ //dummy1.dae
+
+    dae2 = collada.scene;
+     dae2.traverse(function(children)
+                   {
+                   
+                    if(children instanceof THREE.Mesh)
+                       children.castShadow = true;
+                       children.receiveShadow = true;
+                   });
+   
+    var skin = collada.skins[ 0 ];
+//dae2.castShadow = true;
+dae2.position.set(-2,0,-0.6);//x,z,y- if you think in blender dimensions ;)
+//dae2.scale.set(200.01,200.01,200.01);
+      dae2.scale.x = dae2.scale.z =dae2.scale.y= 25;
+       
+dae2.rotation.y = Math.PI/3.4;
+      dae2.position.y = 1;
+scene.add(dae2);
+});
+
+				
+				geometry = new THREE.TorusGeometry(44.14, 13.94, 40, 40, 15.71);
+				material = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xffffff, side: THREE.DoubleSide,specular:3,reflectivity:.3,envMap:textureCube});
+				mesh = new THREE.Mesh(geometry, material);
+				mesh.position.y = 5.41;
+				mesh.castShadow = true;
+				//scene.add(mesh);
+				
+				
+				pgeometry = new THREE.PlaneGeometry( 1000, 1000, 20, 20 );
+				pmaterial = new THREE.MeshLambertMaterial({ ambient: 0x999999, color: 0x999999, specular: 0x101010});
+				plane = new THREE.Mesh( pgeometry, pmaterial );
+				plane.rotation.x = - Math.PI / 2;
+				plane.receiveShadow	= true;
+				plane.scale.set( 300, 300, 300 );
+				scene.add( plane );
+
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapType = THREE.PCFSoftShadowMap;
+				hemisphereLight = new THREE.HemisphereLight(0x665d5d,0xfdb813,1.01);
+				scene.add( hemisphereLight );
+
+               
+                
+				spotLight2 = new THREE.SpotLight( 0xff0000, 0 );
+				spotLight2.position.set( -50,200,100);
+				spotLight2.castShadow = true;
+				spotLight2.shadowDarkness = .8525;
+                spotLight2.shadowCameraVisible = true;
+				scene.add( spotLight2 );
+				controls= new THREE.OrbitControls(camera);
+                controls.target = dae.position;
+                renderer.setClearColor(scene.fog.color,1);
+                
+                camera.lookAt = dae.position;
+			}
+            //initialization loop ended
+			
+function changer(){
+dae.children[1].traverse(function(child)
+ {
+  if(child instanceof THREE.Mesh)
+     {
+	 
+	 if(child.name==='hood_001')
+	   {
+	   
+	   var l = child.material.materials.length;
+	   for(i=0;i<l;i++)
+	   
+	      {
+		  if(i==2)
+			  {
+			  child.material.materials[i].map=null;
+			  child.material.materials[i].color.r = body_color.r*.002;
+			  child.material.materials[i].color.g = body_color.g*.002;
+			  child.material.materials[i].color.b = body_color.b*.002;
+			  child.material.materials[i].envMap =cubeCamera.renderTarget;
+			  child.material.materials[i].reflectivity =.4;
+			  }
+		  }
+          
+	   }
+	   //fender_001
+	    if(child.name==='capot1_001')
+	   {
+	   child.material.color.r = body_color.r*.002;
+	   child.material.color.g = body_color.g*.002;
+	   child.material.color.b = body_color.b*.002;
+	   child.material.envMap =cubeCamera.renderTarget;
+	    child.material.reflectivity =.64;
+	   
+		 }
+		  if(child.name==='fender_001')
+	   {
+	   child.material.color.r = body_color.r*.002;
+	   child.material.color.g = body_color.g*.002;
+	   child.material.color.b = body_color.b*.002;
+	   child.material.envMap =cubeCamera.renderTarget;
+	   child.material.reflectivity =.4;
+		 }
+		 //cab_001
+		 if(child.name==='cab_001')
+	   {
+	   child.material.color.r = body_color.r*.002;
+	   child.material.color.g = body_color.g*.002;
+	   child.material.color.b = body_color.b*.002;
+	   child.material.envMap =cubeCamera.renderTarget;
+	   child.material.reflectivity =.64;
+		 }
+		 //l_fboard_001
+		  if(child.name==='l_fboard_001')
+	   {
+	   child.material.color.r = body_color.r*.002;
+	   child.material.color.g = body_color.g*.002;
+	   child.material.color.b = body_color.b*.002;
+	   child.material.envMap =cubeCamera.renderTarget;
+	   child.material.reflectivity =.4;
+		 }
+		 //r_fboard_001
+		  if(child.name==='r_fboard_001')
+	   {
+	   child.material.color.r = body_color.r*.002;
+	   child.material.color.g = body_color.g*.002;
+	   child.material.color.b = body_color.b*.002;
+	   child.material.envMap =cubeCamera.renderTarget;
+	   child.material.reflectivity =.4;
+		 }
+		 //nose_001
+		 if(child.name==='nose_001')
+	   {
+	   var l = child.material.materials.length;
+	   for(i=0;i<l;i++)
+	      {
+		  child.material.materials[i].map=null;
+		  child.material.materials[i].color.r = body_color.r*.002;
+	    child.material.materials[i].color.g = body_color.g*.002;
+	    child.material.materials[i].color.b = body_color.b*.002;
+		  child.material.materials[i].envMap =cubeCamera.renderTarget;
+		   child.material.materials[i].reflectivity =.4;
+		  }
+          
+	   }
+	   //network_001
+	    if(child.name==='network_001')
+	  
+	   {
+	   child.material.color.r = body_color.r*.002;
+	   child.material.color.g = body_color.g*.002;
+	   child.material.color.b = body_color.b*.002;
+	   child.material.envMap =cubeCamera.renderTarget;
+		 }
+		 //Bumper
+		 	 if(child.name==='Bumper')
+	   {
+	   
+	   var l = child.material.materials.length;
+	   for(i=0;i<l;i++)
+	      {
+		  if(i!=0)
+		  {
+		  child.material.materials[i].map=null;
+		 // child.material.materials[i].color.r = 0.274;
+		  //child.material.materials[i].color.g = 0.274;
+		  //child.material.materials[i].color.b = 0.274;
+		  //child.material.materials[i].envMap =cubeCamera.renderTarget;
+		 // child.material.materials[i].reflectivity =.48;
+		  }
+		  else if(i==0)
+		   {
+		   
+		  child.material.materials[i].map=null;
+		  child.material.materials[i].color.r = 0.474;
+		  child.material.materials[i].color.g = 0.474;
+		  child.material.materials[i].color.b = 0.474;
+		  child.material.materials[i].envMap =cubeCamera.renderTarget;
+		 child.material.materials[i].reflectivity =.98;
+		  }
+		  
+		  }
+          
+	   }
+	   	 if(child.name==='bumper2')
+		 {
+		   
+		   child.material.map = null;
+		    child.material.color.r = 0.274;
+		  child.material.color.g = 0.274;
+		  child.material.color.b = 0.274;
+		  child.material.envMap =cubeCamera.renderTarget;
+		 child.material.reflectivity =.98;
+		   
+		 }
+		  if(child.name==='bumper1')
+		 {
+		   
+		   child.material.map = null;
+		    child.material.color.r = 0.674;
+		  child.material.color.g = 0.674;
+		  child.material.color.b = 0.674;
+		  child.material.envMap =cubeCamera.renderTarget;
+		 child.material.reflectivity =.98;
+		   
+		 }
+	   //guarding_001
+	    if(child.name==='guarding_001')
+	  
+	   {
+	   child.material.color.r =.6274;
+	   child.material.color.g =.6274;
+	   child.material.color.b =.6274;
+	   child.material.envMap =cubeCamera.renderTarget;
+		 }
+		 //fglas_001
+		  if(child.name==='fglas_001')
+	  
+	   {
+	    //child.material = material;
+        child.material.envMap =cubeCamera.renderTarget;
+	     child.material.transparent = true;
+		 child.material.opacity = 0.4;
+		 child.material.refractionRatio= 0.98;
+		 child.material.reflectivity=0.89
+		 }
+	   //r_hl_001
+	   if(child.name==='r_hl_001')
+	  
+	   {
+	    //child.material = material;
+        child.material.materials[2].envMap =cubeCamera.renderTarget;
+	     child.material.materials[2].transparent = true;
+		 child.material.materials[2].opacity = 0.94;
+		 child.material.materials[2].refractionRatio= 0.98;
+		 child.material.materials[2].reflectivity=0.29;
+		  child.material.materials[2].transparent = true;
+		    child.material.materials[2].emissive.r = 1;
+		   child.material.materials[2].map = THREE.ImageUtils.loadTexture('bumperSara/Dodge WC-51 jeep/Texture/hl1s.png');
+		 }
+		  if(child.name==='l_hl_001')
+	  
+	   {
+	    //child.material = material;
+		 child.material.materials[2].map = THREE.ImageUtils.loadTexture('bumperSara/Dodge WC-51 jeep/Texture/hl1s.png');
+        child.material.materials[2].envMap =cubeCamera.renderTarget;
+	     child.material.materials[2].transparent = true;
+		 child.material.materials[2].opacity = 0.94;
+		 child.material.materials[2].refractionRatio= 0.98;
+		 child.material.materials[2].reflectivity=0.29;
+		  child.material.materials[2].transparent = true;
+		   child.material.materials[2].emissive.r = 1;
+		  
+		 }
+		 //tires wheel_r_001
+		  if(child.name==='wheel_r_001' ||child.name==='wheel_r03_001')
+	  
+	   {
+	    //child.material = material;
+        child.material.materials[1].color.r = 0.083137254901960785
+        child.material.materials[1].color.g = 0.083137254901960785;
+		child.material.materials[1].color.b = 0.084313725490196078;
+		 child.material.materials[1].shininess = 50;
+		
+		  child.material.materials[0].map=null;
+		  child.material.materials[0].color.r = 0.8274;
+		  child.material.materials[0].color.g = 0.8274;
+		  child.material.materials[0].color.b = 0.8274;
+		  child.material.materials[0].envMap =cubeCamera.renderTarget;
+		 child.material.materials[0].reflectivity =.98;
+		 
+		 ;
+		 }
+		 //
+		   if(child.name==='wheel_left_2' ||child.name==='wheel_left_1')
+	  
+	   {
+	    //child.material = material;
+        child.material.materials[1].color.r = 0.083137254901960785
+        child.material.materials[1].color.g = 0.083137254901960785;
+		child.material.materials[1].color.b = 0.084313725490196078;
+		 child.material.materials[1].shininess = 50;
+		 
+		  child.material.materials[0].map=null;
+		  child.material.materials[0].color.r = 0.8274;
+		  child.material.materials[0].color.g = 0.8274;
+		  child.material.materials[0].color.b = 0.8274;
+		  child.material.materials[0].envMap =cubeCamera.renderTarget;
+		 child.material.materials[0].reflectivity =.98;
+		 ;
+		 }
+		 //wheel_L02_001
+		  if(child.name==='wheel_L02_001')
+	  
+	   {
+	    //child.material = material;
+        child.material.materials[1].color.r = 0.083137254901960785
+        child.material.materials[1].color.g = 0.083137254901960785;
+		child.material.materials[1].color.b = 0.084313725490196078;
+		 child.material.materials[1].shininess = 50;
+		 
+		  child.material.materials[0].map=null;
+		  child.material.materials[0].color.r = 0.8274;
+		  child.material.materials[0].color.g = 0.8274;
+		  child.material.materials[0].color.b = 0.8274;
+		  child.material.materials[0].envMap =cubeCamera.renderTarget;
+		 child.material.materials[0].reflectivity =.98;
+		 ;
+		 }
+		   if(child.name==='steering_001')
+	  
+	   {
+	    //child.material = material;
+/*child.material.materials[1].color.r = 0.083137254901960785
+        child.material.materials[1].color.g = 0.083137254901960785;
+		child.material.materials[1].color.b = 0.084313725490196078;
+		 child.material.materials[1].shininess = 50;*/
+		 
+		 child.material.materials[1].map=null;
+		  child.material.materials[1].color.r = 0.8274;
+		  child.material.materials[1].color.g = 0.8274;
+		  child.material.materials[1].color.b = 0.8274;
+		  child.material.materials[1].envMap =cubeCamera.renderTarget;
+		 child.material.materials[1].reflectivity =.999321;
+		 ;
+		 }
+		 //bseat_001
+		   if(child.name==='bseat3_001')
+	  {
+	     child.material.map = null;
+	    child.material.color.r = 0.274;
+		 child.material.color.g = 0.274;
+		  child.material.color.b = 0.274;
+		 child.material.envMap = cubeCamera.renderTarget;
+		 
+	  }
+	     if(child.name==='bseat1_001')
+	  {
+	    child.material.color.r = 0.274;
+		 child.material.color.g = 0.274;
+		  child.material.color.b = 0.274;
+		child.material.envMap = cubeCamera.renderTarget;
+		 
+		 
+	  }
+	  
+		 
+}
+
+});
+}
+
+  function  bumperViewer(text)
+  {
+     
+	for(i=0;i<bumpers.length;i++)
+	  {
+	    if(i==text)
+		  bumpers[i].visible =true;
+		  else
+		  bumpers[i].visible = false;
+	  }
+  
+  }
+
+			function draw() {
+
+				renderer.setClearColor(scene.fog.color,1);
+				controls.update();
+				// experiment with code from the snippets menu here
+				//plane.rotation.x+=.09;
+				///dae.children[3].material.materials[0].color.r =effect.color1[0]*.002 ;
+				//dae.children[2].material.materials[0].color.r =effect.color1[0]*.002 ;
+				//dae.children[3].material.materials[0].color.g = effect.color1[1]*.002;
+				//dae.children[2].material.materials[0].color.g = effect.color1[1]*.002;
+				//dae.children[3].material.materials[0].color.b = effect.color1[2]*.002;
+				//dae.children[2].material.materials[0].color.b = effect.color1[2]*.002;
+				 changer();
+				
+				requestAnimationFrame( draw );
+            cubeCamera.updateCubeMap(renderer,scene);
+      		renderer.render( scene, camera );
+          
+			}
+           
+  
+			setup();
+			
+
+		</script>
+		   <input type='text' id="picker" />
+        <script>
+		
+$("#picker").spectrum({
+    color:'rgb(163,127,74)',
+	showPaletteOnly:true,
+	 palette: [
+        ['rgb(163, 127, 74)','rgb(255, 69, 0)','rgb(221, 225, 250)', 'rgb(163, 167, 170)'],
+		['rgb(107, 121, 139)','rgb(36, 43, 88)','rgb(26, 88, 53)','rgb(15, 22, 38)'],
+		['rgb(241, 247, 247)','rgb(221, 226, 227)','rgb(217, 222, 211)','rgb(0, 0,0)'],
+		['rgb(41, 52, 72)','rgb(116, 116, 116)','rgb(190, 205, 214)','rgb(180, 192, 193)'],
+		['rgb(157, 135, 128)','rgb(203, 209, 214)','rgb(181, 197, 201)','rgb(222, 222, 224)']
+		],
+        
+    
+	change:function(color)
+	{
+	 body_color.r = color.toRgb().r;
+	  body_color.g = color.toRgb().g;
+	   body_color.b = color.toRgb().b;
+	
+	
+	}
+});
+
+</script>
+
+		<ul id="menu-bar" style="position:absolute;top:7px;width:20%;z-index:9999">
+ <li class="active"><a href="#">Home</a></li>
+ <li><a href="#">Bumpers</a>
+  <ul>
+   <li id="bumper1"><a href="#" onclick="var k =0;bumperViewer(k);">bumper1</a></li>
+   <li><a href="#" onclick="var k =1;bumperViewer(k);">bumper2</a></li>
+   <li><a href="#" onclick="var k = 2;bumperViewer(k);">bumper3</a></li>
+   
+  </ul>
+ </li>
+ <!-- <li><a href="#">Services</a>
+  <ul>
+   <li><a href="#">Services Sub Menu 1</a></li>
+   <li><a href="#">Services Sub Menu 2</a></li>
+   <li><a href="#">Services Sub Menu 3</a></li>
+   <li><a href="#">Services Sub Menu 4</a></li>
+  </ul>
+ </li>
+ <li><a href="#">About</a></li>
+ <li><a href="#">Contact Us</a></li> -->
+</ul>
+
+<meter value="0" min="0" max="100" id="loadbar" style="position: absolute;left:625px;bottom:181px;width:20%;height:18px;"></meter><br>
+
+	</body>
+</html>

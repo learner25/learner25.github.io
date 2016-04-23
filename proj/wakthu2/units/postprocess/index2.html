@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - materials - shaders [lava]</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #ffffff;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+ 
+			a {
+
+				color: #ffffff;
+			}
+
+			#oldie a { color:#da0 }
+		</style>
+	</head>
+	<body>
+
+		<div id="container"></div>
+		 
+
+		<script src="..three.min.js"></script>
+         <script src="js/controls/OrbitControls.js"type="text/javascript"></script>
+		<script src="js/shaders/ConvolutionShader.js"></script>
+		<script src="js/shaders/CopyShader.js"></script>
+		<script src="js/shaders/FilmShader.js"></script>
+
+		<script src="js/postprocessing/EffectComposer.js"></script>
+		<script src="js/postprocessing/ShaderPass.js"></script>
+		<script src="js/postprocessing/MaskPass.js"></script>
+		<script src="js/postprocessing/RenderPass.js"></script>
+		<script src="js/postprocessing/BloomPass.js"></script>
+		<script src="js/postprocessing/FilmPass.js"></script>
+
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			 
+
+			 
+
+			void main( void ) {
+
+				 
+
+				 
+				float p =1.0;
+				//don't omit normalize . it will give us the desired color of given cube sample
+				vec4 color = normalize(vec4( 0.0,176.0,240.0,10.0 ));
+				 
+
+				gl_FragColor = color;
+
+				 
+			}
+
+		</script>
+
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+			 
+
+			void main()
+			{
+
+			 
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container, stats;
+			var controls;
+			var clock = new THREE.Clock();
+
+			var camera, scene, renderer, composer;
+
+			var uniforms, material, mesh,mesh2;
+
+			var mouseX = 0, mouseY = 0,
+			lat = 0, lon = 0, phy = 0, theta = 0;
+
+			var width = window.innerWidth || 2;
+			var height = window.innerHeight || 2;
+
+			var windowHalfX = width / 2;
+			var windowHalfY = height / 2;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 35, windowHalfX / windowHalfY, 1, 3000 );
+				camera.position.z = 4;
+
+				scene = new THREE.Scene();
+
+				uniforms = {
+
+					 
+					time: { type: "f", value: 1.0 },
+					resolution: { type: "v2", value: new THREE.Vector2() },
+					 
+
+				};
+
+				 
+
+				var size = 2.65;
+
+				material = new THREE.ShaderMaterial( {
+
+					 
+					vertexShader: document.getElementById( 'vertexShader' ).textContent,
+					fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+					wireframe:true,
+					wireframeLinewidth:15,
+					
+					
+
+				} );
+
+				mesh = new THREE.Mesh( new THREE.CubeGeometry( .3,.3,.3 ), material );
+				 
+				scene.add( mesh );
+
+				var light = new THREE.PointLight( 0xffffff,.5);
+				scene.add(light)
+				light.position.y = 1.2;
+
+               mesh2 = new THREE.Mesh(new THREE.CubeGeometry(.532,.012,.532),
+                	new THREE.MeshPhongMaterial({color:0x0e0e0e}));
+               
+               
+                 scene.add(mesh2);
+                   mesh2.rotation.x=Math.PI/2*.002;
+                   mesh2.position.set(0,-.152,0)
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				container.appendChild( renderer.domElement );
+				renderer.autoClear = false;
+
+				//
+
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				//container.appendChild( stats.domElement );
+                controls = new THREE.OrbitControls(camera);
+				//
+
+				var renderModel = new THREE.RenderPass( scene, camera );
+				var effectBloom = new THREE.BloomPass( 1.525 );
+				var effectFilm = new THREE.FilmPass( 0, 0,512, false );
+
+				effectFilm.renderToScreen = true;
+
+				composer = new THREE.EffectComposer( renderer );
+
+				composer.addPass( renderModel );
+				composer.addPass( effectBloom );
+				composer.addPass( effectFilm );
+
+				//
+
+				onWindowResize();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize( event ) {
+
+				uniforms.resolution.value.x = window.innerWidth;
+				uniforms.resolution.value.y = window.innerHeight;
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				composer.reset();
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+               
+				render();
+				stats.update();
+
+			}
+
+			function render() {
+
+				var delta = 5 * clock.getDelta();
+
+			    	uniforms.resolution.value.x = window.innerWidth;
+				uniforms.resolution.value.y = window.innerHeight;
+				 
+
+				renderer.clear();
+				composer.render( 0.101 );
+
+			}
+
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>galaxy for mr Ansari</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #ffffff;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				color: #fff;
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+				z-index:100;
+			}
+
+		</style>
+	</head>
+
+	<body>
+		
+		<div id="container"></div>
+        
+		<script src="r49.js"></script>
+		<script src="js/Detector.js"></script>
+        	<script src="tween.js"></script>
+        <script src="ec.js"></script>
+		
+
+		<script type="x-shader/x-vertex" id="vertexshader">
+
+			attribute float size;
+			attribute vec3 ca;
+
+			varying vec3 vColor;
+
+			void main() {
+
+				vColor = ca;
+
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+				//gl_PointSize = size;
+				gl_PointSize = size * ( 300.0 / length( mvPosition.xyz ) );
+
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+
+			uniform vec3 color;
+			uniform sampler2D texture;
+
+			varying vec3 vColor;
+
+			void main() {
+
+				gl_FragColor = vec4( color * vColor, .50 );
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+
+			}
+
+		</script>
+
+
+		<script>
+
+		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+		var renderer, scene, camera, stats;
+		var cube, uniforms, attributes;
+       var  click_state = false;
+		var WIDTH = window.innerWidth,
+			HEIGHT = window.innerHeight;
+        var  par;
+		var PARTICLE_SIZE = 120;
+
+		var projector, ray;
+		var mouse = { x: 0, y: 0 }, INTERSECTED;
+        var cam_stop = false;
+		var clock;
+
+		init();
+		animate();
+
+		function init() {
+
+			camera = new THREE.PerspectiveCamera( 45, WIDTH / HEIGHT, 1, 10000 );
+			camera.position.set( 0.0405842214468, 20, 429.8030120621202 );
+       
+			projector = new THREE.Projector();
+			ray = new THREE.Ray();
+
+			scene = new THREE.Scene();
+
+			scene.add( camera );
+
+			clock = new THREE.Clock();
+
+			attributes = {
+
+				size: { type: 'f', value: [] },
+				ca: { type: 'c', value: [] }
+
+			};
+
+			uniforms = {
+
+				color: { type: "c", value: new THREE.Color( 0xffffff ) },
+				texture: { type: "t", value: 0, texture: THREE.ImageUtils.loadTexture( "cloud.png" ) }
+
+			};
+
+			var shaderMaterial = new THREE.ShaderMaterial( {
+
+				uniforms: uniforms,
+				attributes: attributes,
+				vertexShader: document.getElementById( 'vertexshader' ).textContent,
+				fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+				transparent: true,
+                    depthTest: false,
+                    opacity:.5,
+                    blending: THREE.AdditiveBlending,
+                    blendEquation:THREE.AddEquation,
+                    blendSrc:THREE.SrcAlphaFactor,
+                color:0x00ff00
+
+			});
+             // new THREE
+            var  particle_geometry = new THREE.Geometry();
+            for(var p=0;p<1900;p++)
+                {
+                    var angle = 2*Math.PI*Math.random();
+                  var vertosca = new THREE.Vector3();
+                    var radiusa =Math.random() * 350 + 1;
+                    vertosca.x = Math.cos(angle)*Math.random()*radiusa;
+                    vertosca.y = Math.random() * 200 * (1 / radiusa) * (Math.random() > .5 ? 1 : -1);
+                    vertosca.z = Math.sin(angle)*Math.random()*radiusa;
+                    
+                    
+                    particle_geometry.vertices.push(vertosca);
+                   
+                    
+                }
+            
+            
+			var geometry = particle_geometry;
+			var radius = 150;
+
+			var vc1 = geometry.vertices.length;
+
+			cube = new THREE.ParticleSystem( geometry, shaderMaterial );
+			cube.position.set( 0, 0, 50 );
+             cube.rotation.z = Math.PI/16;
+			cube.dynamic = true;
+			cube.sortParticles = true;
+
+			var vertices = cube.geometry.vertices;
+			var values_size = attributes.size.value;
+			var values_color = attributes.ca.value;
+
+			for( var v = 0; v < vertices.length; v++ ) {
+
+				values_size[ v ] = PARTICLE_SIZE * 0.5;
+				values_color[ v ] = new THREE.Color( 0xffffff );
+				values_color[ v ].setHSV( 0.1* ( v / vc1 ), .99*Math.random(), ( vertices[ v ].y + radius ) / (( 2 * radius )*3) );
+                
+
+			}
+
+			scene.add( cube );
+            
+            
+            var particle_mat = new THREE.ParticleBasicMaterial({
+                    size:75.23,
+                    vertexColors:true,
+                    map:new THREE.ImageUtils.loadTexture('cloud.png'),
+                    transparent: true,
+                    depthTest: false,
+                    opacity:.5,
+                    blending: THREE.AdditiveBlending,
+                    blendEquation:THREE.AddEquation,
+                    blendSrc:THREE.SrcAlphaFactor
+                });
+            
+               colors2 = [];
+             var particle_geometry2 = new THREE.Geometry();
+            for(var p=0;p<2900;p++)
+                {
+                    var angle = 2*Math.PI*Math.random();
+                  var vertosca = new THREE.Vector3();
+                    var radius = Math.random()*(2500-1400)+1400;
+                    vertosca.x = Math.cos(angle)*Math.random()*radius;
+                    vertosca.y = Math.random() * (500-2000)+200 ;
+                    vertosca.z = Math.sin(angle)*Math.random()*radius;
+                    
+                    colors2[p]=new THREE.Color(0xffffff); 
+                    var h,s,l;
+                    h =  Math.random() * (291 - 185) + 185;
+                    s = Math.random() * (66 - 64) + 34;
+                    l = Math.random() * (100 - 72) + 72;
+                    colors2[p].setRGB(h/360,s/100,l/105);
+                    colors2[p].setHSV(h/360,s/100,l/80);
+                    
+                    particle_geometry2.vertices.push(vertosca);
+                   
+                    
+                }
+            particle_geometry2.colors = colors2;
+            
+            
+            par = new THREE.ParticleSystem(particle_geometry2,particle_mat);
+            scene.add(par);
+            
+            //
+            
+            
+            var particle_mat2 = new THREE.ParticleBasicMaterial({
+                    size:125.23,
+                    vertexColors:true,
+                    map:new THREE.ImageUtils.loadTexture('cloud.png'),
+                    transparent: true,
+                    depthTest: false,
+                    opacity:.75,
+                    blending: THREE.AdditiveBlending,
+                    blendEquation:THREE.AddEquation,
+                    blendSrc:THREE.SrcAlphaFactor
+                });
+            
+               colors3 = [];
+             var particle_geometry3 = new THREE.Geometry();
+            for(var p=0;p<26000;p++)
+                {
+                    var angle = 2*Math.PI*Math.random();
+                  var vertosca = new THREE.Vector3();
+                    var radius = Math.random()*(25000-14000)+14000;
+                    vertosca.x = Math.cos(angle)*Math.random()*radius;
+                    vertosca.y = Math.random() * (-5000-2000)+2000 ;
+                    vertosca.z = Math.sin(angle)*Math.random()*radius;
+                    
+                    colors3[p]=new THREE.Color(0xffffff); 
+                    var h,s,l;
+                    h =  Math.random() * (291 - 185) + 185;
+                    s = Math.random() * (66 - 64) + 34;
+                    l = Math.random() * (100 - 72) + 72;
+                    colors3[p].setRGB(h/60,s/100,l/15);
+                    colors3[p].setHSV(h/360,s/100,l/80);
+                    
+                    particle_geometry3.vertices.push(vertosca);
+                   
+                    
+                }
+            particle_geometry3.colors = colors3;
+            
+            
+             par2 = new THREE.ParticleSystem(particle_geometry3,particle_mat2);
+            scene.add(par2);
+            
+            par2.position.z = 10000;
+            
+			renderer = new THREE.WebGLRenderer( { clearColor: 0x000000, clearAlpha: 1 } );
+			renderer.setSize( WIDTH, HEIGHT );
+
+			var container = document.getElementById( 'container' );
+			container.appendChild( renderer.domElement );
+
+			
+
+			document.addEventListener( 'click', click, false );
+			window.addEventListener( 'resize', onWindowResize, false );
+            
+            //
+          
+		}
+
+		function click( event ) {
+            event.stopImmediatePropagation();
+            event.stopPropagation();
+			event.preventDefault();
+            click_state = !click_state;
+            cam_stop = !cam_stop;
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            
+            var vector = new THREE.Vector3( mouse.x, mouse.y, 0.5 );
+			projector.unprojectVector( vector, camera );
+
+			ray.setOrigin( camera.position ).setDirection( vector.subSelf( camera.position ).normalize() );
+
+			var intersects = ray.intersectObjects( [cube] );
+                   if(!click_state)
+                {
+                    //camera.lookAt(scene.position);
+                    //camera.translate.set(0.0405842214468,20,429.8030120621202);
+                new TWEEN.Tween( camera.position ).to( {
+						x: 0.0405842214468,
+						y: 20,
+						z: 429.8030120621202}, 5500 )
+					.easing( TWEEN.Easing.Elastic.Out).start();
+                    
+                }
+			if ( intersects.length > 0 ) {
+
+				if ( INTERSECTED != intersects[ 0 ].vertex ) {
+
+					if(click_state)
+                    {
+                    attributes.size.value[ INTERSECTED ] = PARTICLE_SIZE;
+                    cube.rotation.y = 0.0;
+                        cancelAnimationFrame(render);
+					INTERSECTED = intersects[ 0 ].vertex;
+                    console.log(intersects[ 0 ].point);
+                        var mew = intersects[ 0 ].point.clone();
+                        camera.translate = mew;
+                        camera.updateProjectionMatrix();
+                        camera.lookAt(mew);
+                    new TWEEN.Tween( camera.position ).to( {
+						x: mew.x,
+						y: mew.y>0?mew.y+8:mew.y-5,
+						z: mew.z}, 5500 )
+					.easing( TWEEN.Easing.Elastic.Out).start();
+                       camera.lookAt(mew);
+					
+					attributes.size.value[ INTERSECTED ] = PARTICLE_SIZE * 1000.25;
+					attributes.size.needsUpdate = true;
+
+				}
+                }
+
+			} else if ( INTERSECTED !== null ) {
+
+				attributes.size.value[ INTERSECTED ] = PARTICLE_SIZE;
+				attributes.size.needsUpdate = true;
+				INTERSECTED = null;
+                
+
+			}
+
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+      
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			render();
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			render();
+			
+
+		}
+
+		function render() {
+            TWEEN.update();
+            
+			var time = clock.getElapsedTime() * 0.1;
+           if(!cam_stop)
+			cube.rotation.y = time*.25;
+            par.rotation.y = time*.25;
+          
+          
+                
+			
+            
+			renderer.render( scene, camera );
+
+		}
+
+
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<script src="build/three.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+			
+			var camera, scene, renderer;
+			var geometry, material, mesh,controls;
+            var particle_unit,particle_geometry;
+                 var arr =[];
+			function setup() {
+
+				var W = window.innerWidth, H = window.innerHeight;
+				renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setSize( W, H );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 50, W/H, 1, 10000 );
+				camera.position.set( 50.0405842214468, 74.30354999128126,  -229.80301206212016 );
+				//camera.rotation.set(-0.7406624080274369,0.9582968360019012,0.6422818617145929);
+					
+				scene = new THREE.Scene();
+				
+				
+				
+				//h-q textures
+		
+                var particle_number = 1900;
+                 particle_unit = new THREE.Particle();
+                particle_geometry = new THREE.Geometry();
+                var particle_material = new THREE.ParticleBasicMaterial({
+                    size:15.23,
+                    vertexColors:true,
+                    map:new THREE.ImageUtils.loadTexture('cloud.png'),
+                    transparent: true,
+                    depthTest: false,
+                    opacity:.25,
+                    blending: THREE.AdditiveBlending,
+                    blendEquation:THREE.AddEquation,
+                    blendSrc:THREE.SrcAlphaFactor
+                });
+				var colors =[];
+                
+                for(var p=0;p<particle_number;p++)
+                {
+                    var angle = 2*Math.PI*Math.random();
+                  var vertosca = new THREE.Vector3();
+                    var radius =Math.random() * 350 + 1;
+                    vertosca.x = Math.cos(angle)*Math.random()*radius;
+                    vertosca.y = Math.random() * 200 * (1 / radius) * (Math.random() > .5 ? 1 : -1);
+                    vertosca.z = Math.sin(angle)*Math.random()*radius;
+                    
+                    colors[p]=new THREE.Color(0xff00ff); 
+                    var h,s,l;
+                    h =  Math.random() * (291 - 185) + 185;
+                    s = Math.random() * (66 - 34) + 34;
+                    l = Math.random() * (100 - 72) + 72;
+                    colors[p].setHSL(h/360,s/50,l/5);
+                    
+                    particle_geometry.vertices.push(vertosca);
+                   
+                    
+                }
+                 particle_geometry.colors = colors;
+                
+                var particle_system = new THREE.ParticleSystem(particle_geometry,particle_material);
+                particle_system.castShadow=true;
+                scene.add(particle_system);
+                
+                ///
+                
+                var particle_number2 = 200;
+                var particle_unit2 = new THREE.Particle();
+                var particle_geometry2 = new THREE.Geometry();
+                var particle_material2 = new THREE.ParticleBasicMaterial({
+                    size:150.23,
+                    vertexColors:true,
+                    map:new THREE.ImageUtils.loadTexture('cloud.png'),
+                    transparent: true,
+                    depthTest: false,
+                    opacity:.75,
+                    blending: THREE.AdditiveBlending,
+                    blendEquation:THREE.AddEquation,
+                    blendSrc:THREE.SrcAlphaFactor
+                });
+				var colors2 =[];
+                for(var p=0;p<particle_number2;p++)
+                {
+                    var angle = 2*Math.PI*Math.random();
+                  var vertosca = new THREE.Vector3();
+                    var radius = Math.random()*(2500-1400)+1400;
+                    vertosca.x = Math.cos(angle)*Math.random()*radius;
+                    vertosca.y = Math.random() * 200 ;
+                    vertosca.z = Math.sin(angle)*Math.random()*radius;
+                    
+                    colors2[p]=new THREE.Color(0xffffff); 
+                    var h,s,l;
+                    h =  Math.random() * (291 - 185) + 185;
+                    s = Math.random() * (66 - 64) + 34;
+                    l = Math.random() * (100 - 72) + 72;
+                    colors2[p].setRGB(h/360,s/100,l/105);
+                    //colors2[p].setHSL(h/360,s/100,l/80);
+                    
+                    particle_geometry2.vertices.push(vertosca);
+                   
+                    
+                }
+                 particle_geometry2.colors = colors2;
+                
+                var particle_system2 = new THREE.ParticleSystem(particle_geometry2,particle_material2);
+                particle_system2.castShadow=true;
+                scene.add(particle_system2);
+                
+              
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapType = THREE.PCFSoftShadowMap;
+				
+				
+                controls= new THREE.OrbitControls(camera);
+                
+                renderer.setClearColor(0x000000);
+			}
+
+			function draw() {
+               var time = new Date();
+				requestAnimationFrame( draw );
+				controls.update();
+                change(time);
+                //console.log(time.getSeconds());
+				// experiment with code from the snippets menu here
+				//plane.rotation.x+=.09;
+               controls.autoRotate = true;
+                 controls.noRotate = true;
+                controls.noZoom = false;
+                controls.noPan = true;
+                
+                var projector = new THREE.Projector();
+               var mouseVector = new THREE.Vector3();
+                
+                window.addEventListener( 'mousemove', onMouseMove, false );
+                
+                function onMouseMove(e)
+                {
+                mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
+                mouseVector.y = 1 - 2 * ( e.clientY / window.innerHeight );
+                  mouseVector.z = 0.5;  
+                    var raycaster = projector.pickingRay(mouseVector.clone(), camera );
+                    var intersects = raycaster.intersectObjects( [particle_unit] );
+                    if(intersects.length>0)
+                    {
+                    for( var i = 0; i < intersects.length; i++ ) {
+                     var intersection = intersects[ i ],
+                      obj = intersection.object;
+                    
+                      }
+                        
+                    }
+                  console.log(obj);
+                }
+                renderer.render( scene, camera );
+
+			}
+  
+            function change(time)
+            {
+            
+                for(i=0;i<arr.length;i++)
+                { 
+                    //arr[i].x=Math.sin((Math.PI/6)*time.getSeconds());
+                   //  arr[i].y=Math.sin((Math.PI/6)*time.getSeconds());
+                 arr[i].z=Math.sin(time.getSeconds())*Math.random();
+                    
+                
+                }
+            }
+			setup();
+			draw();
+
+		</script>
+		
+	</body>
+</html>
